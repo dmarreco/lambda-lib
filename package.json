@@ -1,0 +1,23 @@
+{
+  "name": "@benie/lambda-lib",
+  "version": "1.0.0",
+  "description": "Benie Utility Lib for Lambda Projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://bitbucket.org/beniealpha/lambda-lib.git"
+  },
+  "keywords": [
+    "Lambda",
+    "Library",
+    "Lib",
+    "npm",
+    "util"
+  ],
+  "author": "Daniel Marreco",
+  "license": "SEE LICENSE IN LICENSE.TXT",
+  "homepage": "https://bitbucket.org/beniealpha/lambda-lib#readme"
+}
