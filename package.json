@@ -19,5 +19,10 @@
   ],
   "author": "Daniel Marreco",
   "license": "SEE LICENSE IN LICENSE.TXT",
-  "homepage": "https://bitbucket.org/beniealpha/lambda-lib#readme"
+  "homepage": "https://bitbucket.org/beniealpha/lambda-lib#readme",
+  "dependencies": {
+    "aws-xray-sdk": "^2.0.0",
+    "aws4": "^1.8.0",
+    "url": "^0.11.0"
+  }
 }
