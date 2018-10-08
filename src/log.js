@@ -3,7 +3,6 @@
  *  - Sample debug level loging: When in INFO, still debug a percentage of messages for troubleshoot sampling in production.
  *  - Debug messages on error: Buffer all debug messages and flush them in case of error.
  */
-
 const correlationIds = require('./correlation-ids');
 
 const LogLevels = {
@@ -58,6 +57,7 @@ function log (levelName, message, params) {
     logMsg.level = levelName;
     logMsg.message = message;
 
+    // eslint-disable-next-line no-console
     console.log(JSON.stringify(logMsg));
 }
 

@@ -6,6 +6,7 @@ const libs = {
 };
 const aws4 = require('aws4');
 const url = require('url');
+const log = require('./log');
 
 const DEFAULT_PROTOCOL = 'HTTPS';
 
@@ -58,7 +59,7 @@ exports.RemoteError = RemoteError;
 
 
 function _makeRequest(method, urlString, body, protocol) {
-    console.log(`HTTP REQUEST (${method}) => ${urlString}: ${body}`);
+    log.debug(`HTTP REQUEST (${method}) => ${urlString}`, body);
     // create a new Promise
     return new Promise((resolve, reject) => {
 
@@ -81,7 +82,7 @@ function _makeRequest(method, urlString, body, protocol) {
         request.end();
     })
         .then(result => {
-            console.log(`HTTP RESPONSE: ${JSON.stringify(result)}`);
+            log.debug('HTTP RESPONSE', result);
             return result;
         });
 }

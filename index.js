@@ -1,5 +1,5 @@
-const log = require('./log');
-const stringUtil = require('./string-util');
+const log = require('./src/log');
+const stringUtil = require('./src/string-util');
 
 module.exports = {
     log,

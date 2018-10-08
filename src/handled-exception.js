@@ -14,4 +14,15 @@ class HandledException extends Error {
 
 }
 
+function _getMessage(customMessage, errorCode, defaultMessage) {
+    if (errorCode) {
+        return JSON.stringify({
+            errorCode: errorCode,
+            message: customMessage || defaultMessage
+        });
+    } else {
+        return customMessage || defaultMessage;
+    }
+}
+
 module.exports = HandledException;
