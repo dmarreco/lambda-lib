@@ -49,7 +49,6 @@ class HttpEventHandler {
         try {
             log.info('EVENT RECEIVED', this.event);
             _captureCorrelationId(this.event.headers, this.context.awsRequestId);
-            log.info('EVENT RECEIVED 2', this.event);
             let response = await this.handler(...this.params);
             _handleSuccess(response, this.callback);
         }
