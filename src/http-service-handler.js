@@ -58,6 +58,10 @@ class HttpEventHandler {
     }
 }
 
+function _handler(event, context, callback) {
+    
+}
+
 module.exports = HttpEventHandler;
 
 /**

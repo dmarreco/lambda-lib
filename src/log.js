@@ -5,6 +5,8 @@
  */
 const correlationIds = require('./correlation-ids');
 
+const DEFAULT_LOG_LEVEL = 'DEBUG';
+
 const LogLevels = {
     DEBUG : 0,
     INFO  : 1,
@@ -28,11 +30,8 @@ function getContext() {
     return DEFAULT_CONTEXT;
 }
 
-// default to debug if not specified
-const logLevelName = process.env.LOG_LEVEL || 'DEBUG';
-
 function isEnabled (level) {
-    return level >= LogLevels[logLevelName];
+    return level >= LogLevels[process.env.LOG_LEVEL || DEFAULT_LOG_LEVEL];
 }
 
 function appendError(params, err) {
@@ -53,12 +52,11 @@ function log (levelName, message, params) {
 
     let context = getContext();
 
-    let logMsg = Object.assign({}, context, params);
+    let logMsg = Object.assign({message}, context, params);
     logMsg.level = levelName;
-    logMsg.message = message;
 
     // eslint-disable-next-line no-console
-    console.log(JSON.stringify(logMsg));
+    console.log(JSON.stringify(logMsg) + '\n');
 }
 
 module.exports.debug = (msg, params) => log('DEBUG', msg, params);

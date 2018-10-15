@@ -6,7 +6,8 @@ const libs = {
 };
 const aws4 = require('aws4');
 const url = require('url');
-const log = require('./log');
+const correlationIds = require('../correlation-ids');
+const log = require('../log');
 
 const DEFAULT_PROTOCOL = 'HTTPS';
 
@@ -22,6 +23,7 @@ exports.makeRequest = function(method, url, body, protocol) {
     }
     return _makeRequest(method, url, (body ? bodyAsString : undefined), lib)
         .then(response => {
+
             if (response.statusCode >= 400) {
                 let errorCode, message;
                 try {
@@ -34,13 +36,11 @@ exports.makeRequest = function(method, url, body, protocol) {
                 }
                 throw new RemoteError(message, response.statusCode, errorCode);
             }
+
             return JSON.parse(response.body);
         });
 }; 
 
-exports.httpsGet = function(url) {
-    return _makeRequest('GET', url);
-};
 
 class RemoteError extends Error {
     constructor(message, httpStatusCode, errorCode) {
@@ -94,7 +94,8 @@ function  _createOptions(method, url, body) {
         path: url.path,
         port: url.port,
         method,
-        body: body
+        body: body,
+        headers: correlationIds.get()
     };
     aws4.sign(opts);
     return opts;

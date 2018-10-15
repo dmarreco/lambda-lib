@@ -2,7 +2,7 @@
   "name": "@benie/lambda-lib",
   "version": "1.0.0",
   "description": "Benie Utility Lib for Lambda Projects",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "test"
   },
@@ -23,6 +23,8 @@
   "dependencies": {
     "aws-xray-sdk": "^2.0.0",
     "aws4": "^1.8.0",
+    "lodash": "^4.17.11",
+    "middy": "^0.19.1",
     "url": "^0.11.0"
   },
   "devDependencies": {

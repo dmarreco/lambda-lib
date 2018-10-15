@@ -4,6 +4,10 @@ const LambdaTester = require('lambda-tester');
 
 const HttpHandler = require('../src/http-service-handler');
 
+before(() => {
+    process.env.LOG_LEVEL = 'ERROR';
+});
+
 describe('Handle an event with a sample handler that returns its parameters', () => {
     it('Should result status code 200 and return an object with the parameters resolved from the event', async () => {
 
