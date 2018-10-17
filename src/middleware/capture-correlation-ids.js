@@ -1,7 +1,5 @@
-'use strict';
-
-const correlationIds = require('../lib/correlation-ids');
-const log = require('../lib/log');
+const correlationIds = require('../correlation-ids');
+const log = require('../log');
 
 function captureHttp(headers, awsRequestId, sampleDebugLogRate) {
   if (!headers) {
@@ -176,6 +174,8 @@ module.exports = (config) => {
         captureKinesis(handler.event, handler.context, sampleDebugLogRate);
       } else if (isSnsEvent(handler.event)) {
         captureSns(handler.event.Records, handler.context.awsRequestId, sampleDebugLogRate);
+      } else {
+        log.warn('UNKNOWN EVENT TYPE', handler.event);
       }
 
       next()

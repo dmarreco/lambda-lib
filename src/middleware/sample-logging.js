@@ -1,7 +1,5 @@
-'use strict';
-
-const correlationIds = require('../lib/correlation-ids');
-const log = require('../lib/log');
+const correlationIds = require('../correlation-ids');
+const log = require('../log');
 
 // config should be { sampleRate: double } where sampleRate is between 0.0-1.0
 module.exports = (config) => {
@@ -9,7 +7,7 @@ module.exports = (config) => {
 
   const isDebugEnabled = () => {
     const context = correlationIds.get();
-    if (context['Debug-Log-Enabled'] === 'true') {
+    if (context && context['Debug-Log-Enabled'] === 'true') {
       return true;
     }
 
@@ -18,6 +16,8 @@ module.exports = (config) => {
 
   return {
     before: (handler, next) => {
+      log.info('LAMBDA EVENT RECEIVED', handler.event);
+
       if (isDebugEnabled()) {
         rollback = log.enableDebug();
       }
@@ -25,6 +25,8 @@ module.exports = (config) => {
       next();
     },
     after: (handler, next) => {
+      log.info('LAMBDA RESPONSE', handler.response);
+
       if (rollback) {
         rollback();
       }

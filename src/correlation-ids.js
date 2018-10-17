@@ -14,4 +14,6 @@ exports.set = (key, value) => {
     global.CONTEXT[key] = value;
 };
 
-exports.get = () => (global.CONTEXT ? Object.assign({}, global.CONTEXT) : {});
+exports.get = () => {
+    return (global.CONTEXT ? Object.assign({}, global.CONTEXT) : undefined);
+};

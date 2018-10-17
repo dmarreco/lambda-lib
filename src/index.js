@@ -1,7 +1,7 @@
 const log = require('./log');
 const stringUtil = require('./string-util');
 const Client = require('./client');
-const ServiceHandler = require('./http-service-handler');
+const LambdaHandlerBuilder = require('./lambda-handler-builder');
 
 module.exports = {
     log,
