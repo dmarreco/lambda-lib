@@ -57,9 +57,10 @@ function log (levelName, message, params) {
   }
 
   let context = getContext();
-  let logMsg = Object.assign({}, context, params);
-  logMsg.level = levelName;
-  logMsg.message = message;
+  let logMsg = Object.assign({
+    message,
+    level: levelName
+  }, context, params);
 
   console.log(JSON.stringify(logMsg));
 }

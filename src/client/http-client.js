@@ -1,26 +1,21 @@
 //Enable outgoing http call instrumentation via AWS XRAY. see http://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-nodejs-httpclients.html .
-const AWSXRay = require('aws-xray-sdk');
-const libs = {
-    'HTTP' : AWSXRay.captureHTTPs(require('https')),
-    'HTTPS': AWSXRay.captureHTTPs(require('http'))
-};
 const aws4 = require('aws4');
 const url = require('url');
 const correlationIds = require('../correlation-ids');
 const log = require('../log');
+const {ClientException, ServerException} = require('./remote-exceptions')
+let _libsXRay, _libs;
 
 const DEFAULT_PROTOCOL = 'HTTPS';
 
-exports.makeRequest = function(method, url, body, protocol) {
-    let lib = libs[protocol || DEFAULT_PROTOCOL];
-    if(!lib) throw new Error (`Protocol must be either "HTTP" or "HTTPS", but was "${protocol}"`);
-
+exports.makeRequest = async function(method, url, body, protocol) {
     let bodyAsString;
     if (body && body instanceof Object) {
         bodyAsString = JSON.stringify(body);
     } else if (body) {
         bodyAsString = body.toString();
     }
+    let lib = _getProperLibraryForProtocol(protocol);
     return _makeRequest(method, url, (body ? bodyAsString : undefined), lib)
         .then(response => {
 
@@ -34,32 +29,52 @@ exports.makeRequest = function(method, url, body, protocol) {
                 catch(err) { //not JSON
                     message = response.body;
                 }
-                throw new RemoteError(message, response.statusCode, errorCode);
+                if(response.statusCode < 500) {
+                    throw new ClientException(message, response.statusCode, errorCode);
+                } else {
+                    throw new ServerException(message, response.statusCode, errorCode);
+                }
             }
 
-            return JSON.parse(response.body);
+            let contentType = response.headers && (response.headers['content-type'] || reponse.headers['Content-Type']);
+
+            if(contentType && contentType.toLowerCase() === 'application/json') {
+                return JSON.parse(response.body);
+            }
+            else {
+                return response.body;
+            }
         });
 }; 
 
-
-class RemoteError extends Error {
-    constructor(message, httpStatusCode, errorCode) {
-        super(`${message} - HTTP STATUS CODE ${httpStatusCode} - ERROR CODE ${errorCode}`);
-        this.httpStatusCode = httpStatusCode;
-        this.errorCode = errorCode;
-        this.name = this.constructor.name;
-        if (typeof Error.captureStackTrace === 'function') {
-            Error.captureStackTrace(this, this.constructor);
-        } else { 
-            this.stack = (new Error(message)).stack; 
+function _getProperLibraryForProtocol(protocol) {
+    let libs;
+    if(process.env.ENABLE_XRAY == 'true') {
+        const AWSXRay = require('aws-xray-sdk');
+        if(!_libsXray) { //lazy load
+            _libsXray = {
+                'HTTP' : AWSXRay.captureHTTPs(require('http')),
+                'HTTPS': AWSXRay.captureHTTPs(require('https'))
+            };
         }
+        libs = _libsXRay;
+    } else {
+        if(!_libs) {
+            _libs = { // lazy load
+                'HTTP' : require('http'),
+                'HTTPS': require('https')
+            };
+        }
+        libs = _libs;
     }
+    let res = libs[protocol || DEFAULT_PROTOCOL];
+    if(!res) {
+        throw new Error (`Protocol must be either "HTTP" or "HTTPS", but was "${protocol}"`);
+    }
+    return res;
 }
-exports.RemoteError = RemoteError;
-
 
 function _makeRequest(method, urlString, body, protocol) {
-    log.debug(`HTTP REQUEST (${method}) => ${urlString}`, body);
     // create a new Promise
     return new Promise((resolve, reject) => {
 
@@ -94,9 +109,11 @@ function  _createOptions(method, url, body) {
         path: url.path,
         port: url.port,
         method,
-        body: body,
+        body,
         headers: correlationIds.get()
     };
+
+    log.debug('HTTP REQUEST', opts);
     aws4.sign(opts);
     return opts;
 }
@@ -117,5 +134,5 @@ function _onResponse(response, resolve, reject) {
     response.on('data', chunk => responseBody += chunk.toString());
 
     // once all the data has been read, resolve the Promise 
-    response.on('end', () => resolve({statusCode: response.statusCode, body: responseBody}));
+    response.on('end', () => resolve({statusCode: response.statusCode, body: responseBody, headers: response.headers}));
 }

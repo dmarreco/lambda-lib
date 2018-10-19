@@ -134,16 +134,6 @@ describe('Http event handler builder', () => {
             expect(correlationIds.get()['x-correlation-id']).to.equal(correlationId)
         });
 
-        it.skip('CorelationId will be propagated to remote api calls', async () => {
-            //TODO
-        });
-        it.skip('CorelationId will be propagated to remote SNS calls', async () => {
-            //TODO
-        });
-        it.skip('CorelationId will be propagated to remote Kinesis calls', async () => {
-            //TODO
-        });
-
-    })
+    });
 
 });
