@@ -6,6 +6,6 @@ const LambdaHandlerBuilder = require('./lambda-handler-builder');
 module.exports = {
     log,
     stringUtil,
-    Client,
+    Clients,
     ServiceHandler
 };
