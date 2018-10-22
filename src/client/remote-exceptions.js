@@ -12,8 +12,8 @@ class RemoteException extends Error {
     }
 }
 
-class ClientException extends RemoteException {};
-class ServerException extends RemoteException {};
+class ClientException extends RemoteException {}
+class ServerException extends RemoteException {}
 
 module.exports = {
     RemoteException,

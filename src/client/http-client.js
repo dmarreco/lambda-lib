@@ -3,7 +3,7 @@ const aws4 = require('aws4');
 const url = require('url');
 const correlationIds = require('../correlation-ids');
 const log = require('../log');
-const {ClientException, ServerException} = require('./remote-exceptions')
+const {ClientException, ServerException} = require('./remote-exceptions');
 let _libsXRay, _libs;
 
 const DEFAULT_PROTOCOL = 'HTTPS';
@@ -36,7 +36,7 @@ exports.makeRequest = async function(method, url, body, protocol) {
                 }
             }
 
-            let contentType = response.headers && (response.headers['content-type'] || reponse.headers['Content-Type']);
+            let contentType = response.headers && (response.headers['content-type'] || response.headers['Content-Type']);
 
             if(contentType && contentType.toLowerCase() === 'application/json') {
                 return JSON.parse(response.body);
@@ -49,10 +49,10 @@ exports.makeRequest = async function(method, url, body, protocol) {
 
 function _getProperLibraryForProtocol(protocol) {
     let libs;
-    if(process.env.ENABLE_XRAY == 'true') {
+    if( !(process.env.DISABLE_XRAY == 'false') ) {
         const AWSXRay = require('aws-xray-sdk');
-        if(!_libsXray) { //lazy load
-            _libsXray = {
+        if(!_libsXRay) { //lazy load
+            _libsXRay = {
                 'HTTP' : AWSXRay.captureHTTPs(require('http')),
                 'HTTPS': AWSXRay.captureHTTPs(require('https'))
             };

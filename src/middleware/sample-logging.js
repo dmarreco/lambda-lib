@@ -3,42 +3,42 @@ const log = require('../log');
 
 // config should be { sampleRate: double } where sampleRate is between 0.0-1.0
 module.exports = (config) => {
-  let rollback = undefined;
+    let rollback = undefined;
 
-  const isDebugEnabled = () => {
-    const context = correlationIds.get();
-    if (context && context['Debug-Log-Enabled'] === 'true') {
-      return true;
-    }
+    const isDebugEnabled = () => {
+        const context = correlationIds.get();
+        if (context && context['Debug-Log-Enabled'] === 'true') {
+            return true;
+        }
 
-    return config.sampleRate && Math.random() <= config.sampleRate;
-  }
+        return config.sampleRate && Math.random() <= config.sampleRate;
+    };
 
-  return {
-    before: (handler, next) => {
-      log.info('LAMBDA EVENT RECEIVED', handler.event);
+    return {
+        before: (handler, next) => {
+            log.info('LAMBDA EVENT RECEIVED', handler.event);
 
-      if (isDebugEnabled()) {
-        rollback = log.enableDebug();
-      }
+            if (isDebugEnabled()) {
+                rollback = log.enableDebug();
+            }
 
-      next();
-    },
-    after: (handler, next) => {
-      log.info('LAMBDA RESPONSE', handler.response);
+            next();
+        },
+        after: (handler, next) => {
+            log.info('LAMBDA RESPONSE', handler.response);
 
-      if (rollback) {
-        rollback();
-      }
+            if (rollback) {
+                rollback();
+            }
 
-      next();
-    },
-    onError: (handler, next) => {
-      let awsRequestId = handler.context.awsRequestId;
-      let invocationEvent = JSON.stringify(handler.event);
-      log.error('invocation failed', { awsRequestId, invocationEvent }, handler.error);
+            next();
+        },
+        onError: (handler, next) => {
+            let awsRequestId = handler.context.awsRequestId;
+            let invocationEvent = JSON.stringify(handler.event);
+            log.error('invocation failed', { awsRequestId, invocationEvent }, handler.error);
 
-      next(handler.error);
-    }
-  };
+            next(handler.error);
+        }
+    };
 };
