@@ -1,6 +1,3 @@
-const extensions = require('./extensions');
-extensions.apply();
-
 /**
  * Remove acentos de caracteres
  * @param  {String} stringComAcento [string que contem os acentos]
