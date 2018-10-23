@@ -7,7 +7,7 @@ module.exports = {
     httpClient,
     kinesisClient,
     snsClient,
-    RemoteExceptions,
+    RemoteException: RemoteExceptions.RemoteException,
     ClientException: RemoteExceptions.ClientException,
     ServerException: RemoteExceptions.ServerException
 };

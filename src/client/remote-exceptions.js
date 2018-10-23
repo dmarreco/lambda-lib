@@ -1,8 +1,9 @@
 class RemoteException extends Error {
-    constructor(message, httpStatusCode, errorCode) {
-        super(`${message} - HTTP STATUS CODE ${httpStatusCode} - ERROR CODE ${errorCode}`);
-        this.httpStatusCode = httpStatusCode;
+    constructor(message, statusCode, errorCode, fullResponse) {
+        super(message || 'Unsuccessful HTTP(S) response');
+        this.statusCode = statusCode;
         this.errorCode = errorCode;
+        this.response = fullResponse
         this.name = this.constructor.name;
         if (typeof Error.captureStackTrace === 'function') {
             Error.captureStackTrace(this, this.constructor);

@@ -6,86 +6,93 @@ const log = require('../log');
 const {ClientException, ServerException} = require('./remote-exceptions');
 let _libsXRay, _libs;
 
-const DEFAULT_PROTOCOL = 'HTTPS';
+/**
+ * Makes an HTTP request to a remote API
+ * 
+ * @param verb An HTTP verb (i.e., 'GET', 'POST', 'PUT', 'PATCH', ...)
+ * @param url The complete resource URL (i.e., 'https://my.host/a/path')
+ * @param body The request body
+ * @param headers Headers to be included in the request. Some extra headers may be added by this module as needed
+ * @param signAws If the request should be signed with AWS credential from the executing role. Set to true if you are calling another lambda API.
+ * 
+ * @returns The parsed response body, if response code is 2XX content-type=application/json; or the raw body otherwise
+ * @throws {ClientException} If response status code is 4XX. The status code and message will be in the thrown exception.
+ * @throws {ServerException} If response status code is 5XX. The status code and message will be in the thrown exception.
+ */
+exports.request = _request;
 
-exports.makeRequest = async function(method, url, body, protocol) {
+/**
+ * Makes an HTTP request to a remote API, signed by the executor AWS role
+ * 
+ * @param verb An HTTP verb (i.e., 'GET', 'POST', 'PUT', 'PATCH', ...)
+ * @param url The complete resource URL (i.e., 'https://my.host/a/path')
+ * @param body The request body
+ * @param headers Headers to be included in the request. Some extra headers may be added by this module as needed
+ * 
+ * @returns The parsed response body, if response code is 2XX content-type=application/json; or the raw body otherwise
+ * @throws {ClientException} If response status code is 4XX. The status code and message will be in the thrown exception.
+ * @throws {ServerException} If response status code is 5XX. The status code and message will be in the thrown exception.
+ */
+exports.awsRequest = async (verb, url, body, headers) => {return _request(verb, url, body, headers, true);};
+
+
+async function _request (verb, url, body, headers, signAws) {
+    if (! (verb && url) ) {
+        throw new Error ('"verb" and "url" must be informed');
+    }
+
     let bodyAsString;
+    let _headers = Object.assign({}, headers);
     if (body && body instanceof Object) {
         bodyAsString = JSON.stringify(body);
+        _headers['content-type'] = 'application/json';
     } else if (body) {
         bodyAsString = body.toString();
+        _headers['content-type'] = 'text/plain';
     }
-    let lib = _getProperLibraryForProtocol(protocol);
-    return _makeRequest(method, url, (body ? bodyAsString : undefined), lib)
-        .then(response => {
-
-            if (response.statusCode >= 400) {
-                let errorCode, message;
-                try {
-                    let body = JSON.parse(response.body);
-                    errorCode = body.errorCode;
-                    message = body.message;
-                }
-                catch(err) { //not JSON
-                    message = response.body;
-                }
-                if(response.statusCode < 500) {
-                    throw new ClientException(message, response.statusCode, errorCode);
-                } else {
-                    throw new ServerException(message, response.statusCode, errorCode);
-                }
-            }
-
-            let contentType = response.headers && (response.headers['content-type'] || response.headers['Content-Type']);
-
-            if(contentType && contentType.toLowerCase() === 'application/json') {
-                return JSON.parse(response.body);
-            }
-            else {
-                return response.body;
-            }
-        });
-}; 
-
-function _getProperLibraryForProtocol(protocol) {
-    let libs;
-    if( !(process.env.DISABLE_XRAY == 'false') ) {
-        const AWSXRay = require('aws-xray-sdk');
-        if(!_libsXRay) { //lazy load
-            _libsXRay = {
-                'HTTP' : AWSXRay.captureHTTPs(require('http')),
-                'HTTPS': AWSXRay.captureHTTPs(require('https'))
-            };
+    let response = await _makeRequest(verb, url, (body ? bodyAsString : undefined), _headers, signAws);
+    if (response.statusCode >= 400) {
+        let errorCode, message;
+        try {
+            let body = JSON.parse(response.body);
+            errorCode = body.errorCode; //errorCode may be passed, on top of http status code for typed error contract
+            message = body.message;
         }
-        libs = _libsXRay;
-    } else {
-        if(!_libs) {
-            _libs = { // lazy load
-                'HTTP' : require('http'),
-                'HTTPS': require('https')
-            };
+        catch(err) { //not JSON
+            message = response.body;
         }
-        libs = _libs;
+        if(response.statusCode < 500) {
+            throw new ClientException(message, response.statusCode, errorCode, response);
+        } else {
+            throw new ServerException(message, response.statusCode, errorCode, response);
+        }
     }
-    let res = libs[protocol || DEFAULT_PROTOCOL];
-    if(!res) {
-        throw new Error (`Protocol must be either "HTTP" or "HTTPS", but was "${protocol}"`);
+    let contentType = response.headers && (response.headers['content-type'] || response.headers['Content-Type']);
+
+    if(contentType && contentType.toLowerCase().startsWith('application/json')) {
+        return JSON.parse(response.body);
     }
-    return res;
+    else {
+        return response.body;
+    }
 }
 
-function _makeRequest(method, urlString, body, protocol) {
+
+async function _makeRequest(method, urlString, body, headers, signAws) {
     // create a new Promise
     return new Promise((resolve, reject) => {
 
         /* Node's URL library allows us to create a
             * URL object from our request string, so we can build
             * our request for http.get */
-        const parsedUrl = url.parse(encodeURI(urlString));
+        let urlStringWithoutDuplicateSlashesFromPath = urlString.replace(/([^:]\/)\/+/g, "$1");
+        const parsedUrl = url.parse(encodeURI(urlStringWithoutDuplicateSlashesFromPath));
 
-        const requestOptions = _createOptions(method, parsedUrl, body);
+        const requestOptions = _createOptions(method, parsedUrl, body, headers, signAws);
+        
+        const lib = _getProperLibraryForProtocol(parsedUrl.protocol);
 
-        const request = protocol.request(requestOptions, res => _onResponse(res, resolve, reject));
+        const request = lib.request(requestOptions, res => _onResponse(res, resolve, reject));
 
         /* if there's an error, then reject the Promise
             * (can be handled with Promise.prototype.catch) */
@@ -96,25 +103,54 @@ function _makeRequest(method, urlString, body, protocol) {
 
         request.end();
     })
-        .then(result => {
-            log.debug('HTTP RESPONSE', result);
-            return result;
-        });
+    .then(result => {
+        log.debug('HTTP RESPONSE', result);
+        return result;
+    });
+}
+
+function _getProperLibraryForProtocol(protocol) {
+    const DEFAULT_PROTOCOL = 'https:';
+    let libs;
+    if( !(process.env.DISABLE_XRAY == 'true') ) {
+        const AWSXRay = require('aws-xray-sdk');
+        if(!_libsXRay) { //lazy load
+            _libsXRay = {
+                'http:' : AWSXRay.captureHTTPs(require('http')),
+                'https:': AWSXRay.captureHTTPs(require('https'))
+            };
+        }
+        libs = _libsXRay;
+    } else {
+        if(!_libs) {
+            _libs = { // lazy load
+                'http:' : require('http'),
+                'https:': require('https')
+            };
+        }
+        libs = _libs;
+    }
+    let res = libs[protocol || DEFAULT_PROTOCOL];
+    if(!res) throw new Error(`Could not find handler library for protocol '${protocol}'; must be either 'http:' 'https:'`)
+    return res;
 }
 
 // the options that are required by http.get
-function  _createOptions(method, url, body) {
+function  _createOptions(method, url, body, _headers, signAws) {
+    let headers = Object.assign({}, correlationIds.get(), _headers);
     let opts =  {
         hostname: url.hostname,
         path: url.path,
         port: url.port,
         method,
         body,
-        headers: correlationIds.get()
+        headers
     };
-
     log.debug('HTTP REQUEST', opts);
-    aws4.sign(opts);
+    if (signAws) {
+        aws4.sign(opts);
+        log.debug('HTTP REQUEST IS AWS-SIGNED');
+    }
     return opts;
 }
 

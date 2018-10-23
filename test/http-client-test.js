@@ -12,6 +12,7 @@ describe('HTTP Client', () => {
 
     before(() => {
         process.env.LOG_LEVEL = 'ERROR';
+        process.env.DISABLE_XRAY = true;
     });
 
     it('Making HTTPS GET with result 200 returns the parsed body as object if content-type=application/json' , async () => {
@@ -21,7 +22,7 @@ describe('HTTP Client', () => {
         };
         nock('https://my.service').get('/foo').reply(200, jsonResponse, {'content-type': 'application/json'});
 
-        let response = await httpClient.makeRequest('GET', 'https://my.service/foo');
+        let response = await httpClient.request('GET', 'https://my.service/foo');
 
         expect(response).to.deep.equal(jsonResponse);
     });
@@ -30,7 +31,7 @@ describe('HTTP Client', () => {
         let responseBody = 'hello, cruel and cold world';
         nock('https://my.service').get('/foo').reply(200, responseBody, {'content-type': 'text/plain'});
 
-        let response = await httpClient.makeRequest('GET', 'https://my.service/foo');
+        let response = await httpClient.request('GET', 'https://my.service/foo');
 
         expect(response).to.deep.equal(responseBody);
     });
@@ -39,7 +40,7 @@ describe('HTTP Client', () => {
         nock('https://my.service').get('/foo').reply(404, {message: 'Entity not found', errorCode: 20}, {'content-type': 'application/json'});
 
         try { 
-            await httpClient.makeRequest('GET', 'https://my.service/foo'); 
+            await httpClient.request('GET', 'https://my.service/foo'); 
         } catch (e) {
             return expect(e instanceof ClientException).to.be.true;
         }
@@ -50,7 +51,7 @@ describe('HTTP Client', () => {
         nock('https://my.service').get('/foo').reply(500, 'Not found', {'content-type': 'text/plain'});
 
         try { 
-            await httpClient.makeRequest('GET', 'https://my.service/foo'); 
+            await httpClient.request('GET', 'https://my.service/foo'); 
         } catch (e) {
             return expect(e instanceof ServerException).to.be.true;
         }
@@ -80,7 +81,7 @@ describe('HTTP Client', () => {
                 .get('/foo')
                 .reply(200, {});
 
-            await httpClient.makeRequest('GET', 'https://my.host/foo');
+            await httpClient.request('GET', 'https://my.host/foo');
 
             expect(actualHeaders).to.deep.equal(expectedHeaders);
 

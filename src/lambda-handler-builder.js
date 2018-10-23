@@ -80,7 +80,7 @@ module.exports = LambdaHandlerBuilder;
 function _handleError(exception, callback) {
     if (exception instanceof HandledException) {
         let response = {
-            statusCode: exception.httpStatusCode || 400,
+            statusCode: exception.statusCode || exception.httpStatusCode || 400,
             body: exception.message,
         };
         response.headers = { 'Content-Type': 'text/plain' };
