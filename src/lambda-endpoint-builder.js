@@ -50,7 +50,7 @@ class LambdaEndpoint {
             let event = Object.assign({}, _event);
             try { event.body = JSON.parse(event.body); } catch (e) { /*not json*/ }
 
-            this.validateEvent(event);
+            if (this.validateEvent) this.validateEvent(event);
 
             let params;
             if (this.params) {
