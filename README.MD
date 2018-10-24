@@ -20,10 +20,10 @@ LambdaHandler ->> InnerBusinessService: someBusinessHandler(... bizParams)
 InnerBusinessService -->> LambdaHandler: 
 LambdaHandler -->> APIGateway : callback(err, res)
 ```
-In such case, you might use EventHandlerBuilder:
+In such case, you might use LambdaEndpoint:
 
 ```javascript
-exports.myLambdaHandler = new EventHandlerBuilder()
+exports.myLambdaHandler = new LambdaEndpoint()
 	.withHandler(myServiceModule.someBusinessHandler)
 	.withStaticParams('myParam1', myParam2)
 	.build();
@@ -47,7 +47,7 @@ exports.myLambdaHandler = async (event, context, callback) => {
 #### Event parsing
 Most of the times, you may not have static parameters to your inner service call. You may get such values from the incoming event like such:
 ```javascript
-exports.myLambdaHandler = new EventHandlerBuilder()
+exports.myLambdaHandler = new LambdaEndpoint()
 	.withHandler(myServiceModule.someBusinessHandler)
 	.withEventParams(e => [e.body.some, e.queryStringParams.someOther])
 	.build();

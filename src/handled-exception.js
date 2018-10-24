@@ -1,6 +1,6 @@
 class HandledException extends Error {
 
-    constructor(customMessage, errorCode, defaultMessage, httpStatusCode) {
+    constructor(customMessage, httpStatusCode, errorCode, defaultMessage) {
         super(_getMessage(customMessage, errorCode, defaultMessage));
         this.isJson = (errorCode ? true : false);
         this.httpStatusCode = httpStatusCode;

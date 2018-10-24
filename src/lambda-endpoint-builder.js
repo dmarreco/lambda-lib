@@ -9,14 +9,14 @@ const HTTP_CODE_SUCCESS = 200;
  * 
  * Usage Ex.:
  * 
- * myLambdaModule.myLambdaHandler = new EventHandlerBuilder()
+ * myLambdaModule.myLambdaHandler = new LambdaEndpoint()
  *      .withHandler(myServiceModule.someBusinessHandler)
  *      .withStaticParams('myParam1', myParam2)
  *      // or, alternativelly:
  *      // .withEventParams(e => [e.body.some, e.queryStringParams.someOther]) 
  *      .build();
  */
-class LambdaHandlerBuilder {
+class LambdaEndpoint {
 
     withHandler(handler) {
         this.handler = handler;
@@ -33,6 +33,11 @@ class LambdaHandlerBuilder {
         return this;
     }
 
+    withEventValidator(f) {
+        this.validateEvent = f;
+        return this;
+    }
+
     build() {
         if (this.params && this.eventToParamsMapperFunction) {
             throw new Error('Error building lambda handler module: must use either "withParams(...params)" or "withEventParams(mapperFunc)", not both');
@@ -44,6 +49,8 @@ class LambdaHandlerBuilder {
         let res = async (_event, context, callback) => {
             let event = Object.assign({}, _event);
             try { event.body = JSON.parse(event.body); } catch (e) { /*not json*/ }
+
+            this.validateEvent(event);
 
             let params;
             if (this.params) {
@@ -69,7 +76,7 @@ class LambdaHandlerBuilder {
     }
 }
 
-module.exports = LambdaHandlerBuilder;
+module.exports = LambdaEndpoint;
 
 /**
  * This method handles any business exception by converting it to the proper http response and invoking the proper callback
@@ -92,14 +99,24 @@ function _handleError(exception, callback) {
 }
 
 function _handleSuccess(responseBody, callback) {
+
+    let isObject = (responseBody !== null) && (typeof responseBody === 'object');
+
     let response = {
         statusCode: HTTP_CODE_SUCCESS,
-        body: JSON.stringify(responseBody),
         headers: {
-            'Content-Type': 'application/json',
             'Access-Control-Allow-Credentials': true // Required for cookies, authorization headers with HTTPS
         }
     };
+
+    if (isObject) {
+        response.body = JSON.stringify(responseBody);
+        response.headers['content-type'] = 'application/json'
+    } else {
+        response.body = responseBody;
+        response.headers['content-type'] = 'text/plain'
+    }
+
     callback(null, response);
 }
 

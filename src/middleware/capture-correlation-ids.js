@@ -175,7 +175,7 @@ module.exports = (config) => {
             } else if (isSnsEvent(handler.event)) {
                 captureSns(handler.event.Records, handler.context.awsRequestId, sampleDebugLogRate);
             } else {
-                log.warn('UNKNOWN EVENT TYPE', handler.event);
+                log.warn('Unknown event type; can not capture correlation id', handler.event);
             }
 
             next();
