@@ -114,10 +114,10 @@ function _handleSuccess(responseBody, callback) {
 
     if (isObject) {
         response.body = JSON.stringify(responseBody);
-        response.headers['content-type'] = 'application/json'
+        response.headers['content-type'] = 'application/json';
     } else {
         response.body = responseBody;
-        response.headers['content-type'] = 'text/plain'
+        response.headers['content-type'] = 'text/plain';
     }
 
     callback(null, response);

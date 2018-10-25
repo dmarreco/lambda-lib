@@ -3,7 +3,7 @@ class RemoteException extends Error {
         super(message || 'Unsuccessful HTTP(S) response');
         this.statusCode = statusCode;
         this.errorCode = errorCode;
-        this.response = fullResponse
+        this.response = fullResponse;
         this.name = this.constructor.name;
         if (typeof Error.captureStackTrace === 'function') {
             Error.captureStackTrace(this, this.constructor);

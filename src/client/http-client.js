@@ -84,7 +84,7 @@ async function _makeRequest(method, urlString, body, headers, signAws) {
         /* Node's URL library allows us to create a
             * URL object from our request string, so we can build
             * our request for http.get */
-        let urlStringWithoutDuplicateSlashesFromPath = urlString.replace(/([^:]\/)\/+/g, "$1");
+        let urlStringWithoutDuplicateSlashesFromPath = urlString.replace(/([^:]\/)\/+/g, '$1');
         const parsedUrl = url.parse(encodeURI(urlStringWithoutDuplicateSlashesFromPath));
 
         const requestOptions = _createOptions(method, parsedUrl, body, headers, signAws);
@@ -102,10 +102,10 @@ async function _makeRequest(method, urlString, body, headers, signAws) {
 
         request.end();
     })
-    .then(result => {
-        log.debug('HTTP RESPONSE', result);
-        return result;
-    });
+        .then(result => {
+            log.debug('HTTP RESPONSE', result);
+            return result;
+        });
 }
 
 function _getProperLibraryForProtocol(protocol) {
@@ -130,7 +130,7 @@ function _getProperLibraryForProtocol(protocol) {
         libs = _libs;
     }
     let res = libs[protocol || DEFAULT_PROTOCOL];
-    if(!res) throw new Error(`Could not find handler library for protocol '${protocol}'; must be either 'http:' 'https:'`)
+    if(!res) throw new Error(`Could not find handler library for protocol '${protocol}'; must be either 'http:' 'https:'`);
     return res;
 }
 
