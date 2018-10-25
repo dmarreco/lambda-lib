@@ -60,6 +60,9 @@ class LambdaEndpoint {
             } else {
                 params = [];
             }
+            if (!Array.isArray(params)) {
+                params = [params]; //forces conversion to array
+            }
 
             try {
                 let response = await this.handler(...params);
