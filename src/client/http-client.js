@@ -42,15 +42,14 @@ async function _request (verb, url, body, headers, signAws) {
     }
 
     let bodyAsString;
-    let _headers = Object.assign({}, headers);
+    let requestHeaders = Object.assign({}, headers);
     if (body && body instanceof Object) {
         bodyAsString = JSON.stringify(body);
-        _headers['content-type'] = 'application/json';
+        requestHeaders['content-type'] = requestHeaders['content-type'] || 'application/json';
     } else if (body) {
         bodyAsString = body.toString();
-        _headers['content-type'] = 'text/plain';
     }
-    let response = await _makeRequest(verb, url, (body ? bodyAsString : undefined), _headers, signAws);
+    let response = await _makeRequest(verb, url, (body ? bodyAsString : undefined), requestHeaders, signAws);
     if (response.statusCode >= 400) {
         let errorCode, message;
         try {
