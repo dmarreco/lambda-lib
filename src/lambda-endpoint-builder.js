@@ -4,6 +4,12 @@ const { captureCorrelationIds, sampleLogging } = require('./middleware');
 
 const HTTP_CODE_SUCCESS = 200;
 
+const LambdaEndpointWrapper = (f) => {
+    return new LambdaEndpoint()
+        .withHandler(f)
+        .build();
+}
+
 /**
  * Handler for HTTP lambda endpoints.
  * 
@@ -48,7 +54,10 @@ class LambdaEndpoint {
 
         let res = async (_event, context, callback) => {
             let event = Object.assign({}, _event);
+            if(event.body === undefined) event.body = '{}';
             try { event.body = JSON.parse(event.body); } catch (e) { /*not json*/ }
+            event.pathParameters = event.pathParameters || {};
+            event.queryStringParameters = event.queryStringParameters || {};
 
             if (this.validateEvent) this.validateEvent(event);
 
@@ -58,7 +67,7 @@ class LambdaEndpoint {
             } else if (this.eventToParamsMapperFunction) {
                 params = this.eventToParamsMapperFunction(event);
             } else {
-                params = [];
+                params = [event, context, callback];
             }
             if (!Array.isArray(params)) {
                 params = [params]; //forces conversion to array
@@ -78,6 +87,8 @@ class LambdaEndpoint {
             .use(sampleLogging({ sampleRate: 0.01 }));
     }
 }
+
+LambdaEndpoint.Wrap = LambdaEndpointWrapper;
 
 module.exports = LambdaEndpoint;
 

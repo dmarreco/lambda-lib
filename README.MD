@@ -44,6 +44,18 @@ exports.myLambdaHandler = async (event, context, callback) => {
 }
 ```
 
+#### Lambda Handler Wrapper
+An alternative way to achieve the same goal is to use the Labda Wrapper notation:
+```javascript
+exports.myLambdaHandler = LambdaEndpoint.Wrap(async (event, context, callback) => {
+		let myParam = event.queryStringParameters.myParam;
+		return myServiceModule.someBusinessHandler('myParam2', myParam);
+});
+```
+> Using either Wrapper or Builder form, event will be pre-processed, so for instance, in the above example _event.queryStringParameters_ will never be undefined.
+
+> Also, the error or success callback will be handled by the wrapper, all you have to do is return the data (or throw the proper exception).
+
 #### Event parsing
 Most of the times, you may not have static parameters to your inner service call. You may get such values from the incoming event like such:
 ```javascript
