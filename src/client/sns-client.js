@@ -1,10 +1,23 @@
-const AWSXRay = require('aws-xray-sdk');
-const AWS = AWSXRay.captureAWS(require('aws-sdk'));
-const sns = new AWS.SNS();
 const correlationIds = require('../correlation-ids');
+
+var sns;
 
 const log = require('../log');
 
+function getAwsSnsLib() {
+    debugger;
+    if (!sns) {
+       if (process.env.DISABLE_XRAY == 'true') {
+            const AWS = require('aws-sdk');
+            sns = new AWS.SNS();
+       } else {
+            const XRay = require('aws-xray-sdk');
+            const AWS = XRay.captureAWS(AWS);
+            sns = new AWSXRay.SNS();
+       }
+    }
+    return sns;
+}
 
 function _addCorrelationIds(messageAttributes) {
     let attributes = {};
@@ -27,5 +40,5 @@ module.exports.publish = (arn, content, _attributes) => {
     };
 
     log.info('Publishing to SNS topic', params);
-    return sns.publish(params).promise();
+    return getAwsSnsLib().publish(params).promise();
 };
