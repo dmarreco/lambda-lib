@@ -12,8 +12,8 @@ function getAwsSnsLib() {
             sns = new AWS.SNS();
        } else {
             const XRay = require('aws-xray-sdk');
-            const AWS = XRay.captureAWS(AWS);
-            sns = new AWSXRay.SNS();
+            const AWS = XRay.captureAWS(require('aws-sdk'));
+            sns = new AWS.SNS();
        }
     }
     return sns;
