@@ -60,7 +60,7 @@ function log (levelName, message, params) {
     let logMsg = Object.assign({
         message,
         level: levelName
-    }, context, params);
+    }, context, {params});
 
     //eslint-disable-next-line no-console
     console.log(JSON.stringify(logMsg));
