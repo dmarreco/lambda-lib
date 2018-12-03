@@ -51,7 +51,7 @@ function appendError(params, err) {
     );
 }
 
-function log (levelName, message, params) {
+function log (levelName, message, params, printFunc = console.log) {
     if (!isEnabled(LogLevels[levelName])) {
         return;
     }
@@ -63,13 +63,13 @@ function log (levelName, message, params) {
     }, context, {params});
 
     //eslint-disable-next-line no-console
-    console.log(JSON.stringify(logMsg));
+    printFunc(JSON.stringify(logMsg));
 }
 
 module.exports.debug = (msg, params) => log('DEBUG', msg, params);
 module.exports.info  = (msg, params) => log('INFO',  msg, params);
 module.exports.warn  = (msg, params, error) => log('WARN',  msg, appendError(params, error));
-module.exports.error = (msg, params, error) => log('ERROR', msg, appendError(params, error));
+module.exports.error = (msg, params, error) => log('ERROR', msg, appendError(params, error), console.error);
 
 module.exports.enableDebug = () => {
     const oldLevel = process.env.LOG_LEVEL;
