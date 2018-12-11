@@ -5,7 +5,6 @@ var sns;
 const log = require('../log');
 
 function getAwsSnsLib() {
-    debugger;
     if (!sns) {
        if (process.env.DISABLE_XRAY == 'true') {
             const AWS = require('aws-sdk');

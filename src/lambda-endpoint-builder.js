@@ -8,7 +8,7 @@ const LambdaEndpointWrapper = (f) => {
     return new LambdaEndpoint()
         .withHandler(f)
         .build();
-}
+};
 
 /**
  * Handler for HTTP lambda endpoints.
