@@ -1,6 +1,6 @@
 {
   "name": "@benie/lambda-lib",
-  "version": "1.0.7",
+  "version": "1.1.0-0",
   "description": "Builders and tools for creating AWS Lambda function handlers that provides automation for things such as logging, instrumentation and parameters propagation",
   "main": "src/index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://bitbucket.org/beniealpha/lambda-lib.git"
-  },  
+  },
   "keywords": [
     "Lambda",
     "Library",
