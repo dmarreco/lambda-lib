@@ -3,11 +3,13 @@ const stringUtil = require('./string-util');
 const Client = require('./client');
 const LambdaEndpoint = require('./lambda-endpoint-builder');
 const HandledException = require('./handled-exception');
+const DynamoRepository = require('./repository/dynamo-repository-order');
 
 module.exports = Object.assign({
     log,
     stringUtil,
     Client,
     LambdaEndpoint,
-    HandledException
+    HandledException,
+    DynamoRepository
 }, Client);

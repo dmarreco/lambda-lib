@@ -6,6 +6,10 @@
   "scripts": {
     "test": "test"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://bitbucket.org/beniealpha/lambda-lib.git"
+  },  
   "keywords": [
     "Lambda",
     "Library",
@@ -20,7 +24,8 @@
     "aws4": "^1.8.0",
     "axios": "^0.18.0",
     "middy": "^0.19.1",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "chai": "^4.2.0",
