@@ -31,6 +31,7 @@ function _addCorrelationIds(messageAttributes) {
 }
 
 
+
 module.exports.publish = (arn, content, _attributes) => {
     const params = {
         Message: JSON.stringify(content),
@@ -39,5 +40,18 @@ module.exports.publish = (arn, content, _attributes) => {
     };
 
     log.info('Publishing to SNS topic', params);
+    return getAwsSnsLib().publish(params).promise();
+};
+
+
+
+module.exports.send = (phone, content, _attributes) => {
+    const params = {
+        Message: content,
+        PhoneNumber: phone,
+        MessageAttributes: _addCorrelationIds(_attributes || {})
+    };
+
+    log.info('Sending SMS message', params);
     return getAwsSnsLib().publish(params).promise();
 };
