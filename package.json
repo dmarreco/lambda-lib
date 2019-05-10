@@ -1,6 +1,6 @@
 {
   "name": "@benie/lambda-lib",
-  "version": "1.1.0-0",
+  "version": "1.1.1",
   "description": "Builders and tools for creating AWS Lambda function handlers that provides automation for things such as logging, instrumentation and parameters propagation",
   "main": "src/index.js",
   "scripts": {
