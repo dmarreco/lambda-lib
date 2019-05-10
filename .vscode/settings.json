@@ -1,3 +1,4 @@
 {
-    "mocha.enabled": false
+    "mocha.enabled": false,
+    "window.title": "lambda-lib"
 }
