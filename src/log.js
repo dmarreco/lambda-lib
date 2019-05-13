@@ -44,10 +44,12 @@ function appendError(params, err) {
         return params;
     }
 
+    let stackAsArray = err && err.stack && err.stack.split(/\r?\n/)
+
     return Object.assign(
         {},
         params || {}, 
-        { errorName: err.name, errorMessage: err.message, stackTrace: err.stack }
+        { errorName: err.name, errorMessage: err.message, stackTrace: stackAsArray }
     );
 }
 

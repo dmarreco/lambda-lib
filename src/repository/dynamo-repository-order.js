@@ -1,11 +1,9 @@
-//TODO D.R.Y.: Copiado do projeto business-services
-//const AWSXRay = require('aws-xray-sdk-core');
+const AWSXRay = require('aws-xray-sdk');
 const _AWS = require('aws-sdk');
 const uuid = require('uuid/v4');
 const Exceptions = require('./repository-exceptions');
 const log = require('../log');
-
-const AWS = _AWS;//TODO AWSXRay.captureAWS(_AWS);
+const AWS = (process.env.DISABLE_XRAY == 'true') ? _AWS : AWSXRay.captureAWS(_AWS);
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 /**

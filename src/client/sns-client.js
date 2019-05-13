@@ -6,14 +6,14 @@ const log = require('../log');
 
 function getAwsSnsLib() {
     if (!sns) {
-        // if (process.env.DISABLE_XRAY == 'true') {
+        if (process.env.DISABLE_XRAY == 'true') {
             const AWS = require('aws-sdk');
             sns = new AWS.SNS();
-        // } else {
-        //     const XRay = require('aws-xray-sdk');
-        //     const AWS = XRay.captureAWS(require('aws-sdk'));
-        //     sns = new AWS.SNS();
-        // }
+        } else {
+            const XRay = require('aws-xray-sdk');
+            const AWS = XRay.captureAWS(require('aws-sdk'));
+            sns = new AWS.SNS();
+        }
     }
     return sns;
 }
