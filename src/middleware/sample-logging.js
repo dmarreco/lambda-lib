@@ -25,7 +25,9 @@ module.exports = (config) => {
             next();
         },
         after: (handler, next) => {
-            log.info('LAMBDA RESPONSE', handler);
+            //TODO handler is undeefined for some reason, so ill move it to the endpoint builder 
+            //log.info('LAMBDA RESPONSE', handler.response);
+            log.info('LAMBDA EXECUTION FINISHED')
 
             if (rollback) {
                 rollback();
