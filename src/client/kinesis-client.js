@@ -1,5 +1,5 @@
-const AWSXRay        = require('aws-xray-sdk');
-const AWS            = AWSXRay.captureAWS(require('aws-sdk'));
+//const AWSXRay        = require('aws-xray-sdk');
+const AWS            = require('aws-sdk');
 const Kinesis        = new AWS.Kinesis();
 const log            = require('../log');
 const correlationIds = require('../correlation-ids');
