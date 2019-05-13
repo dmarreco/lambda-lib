@@ -20,6 +20,7 @@
   "author": "Daniel Marreco",
   "license": "AAL",
   "dependencies": {
+    "aws-xray-sdk": "^2.3.3",
     "aws4": "^1.8.0",
     "axios": "^0.18.0",
     "middy": "^0.19.1",
