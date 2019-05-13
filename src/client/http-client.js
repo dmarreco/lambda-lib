@@ -103,7 +103,7 @@ async function _makeRequest(method, urlString, body, headers, signAws) {
         request.end();
     })
         .then(result => {
-            log.debug('HTTP RESPONSE', result);
+            log.debug('HTTP response', result);
             return result;
         });
 }
@@ -145,10 +145,10 @@ function  _createOptions(method, url, body, _headers, signAws) {
         body,
         headers
     };
-    log.debug('HTTP REQUEST', opts);
+    log.debug('HTTP request', opts);
     if (signAws) {
         aws4.sign(opts);
-        log.debug('HTTP REQUEST IS AWS-SIGNED');
+        log.debug('(HTTP request is IAM-signed)');
     }
     return opts;
 }
@@ -161,7 +161,7 @@ function _onResponse(response, resolve, reject) {
     var responseBody = '';
 
     if (hasResponseFailed) {
-        reject(`Request to ${response.url} failed with HTTP ${response.status}`);
+        reject(`Request to ${response.url} failed with HTTP status ${response.status}`);
     }
 
     /* the response stream's (an instance of Stream) current data. See:

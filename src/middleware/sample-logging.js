@@ -25,7 +25,9 @@ module.exports = (config) => {
             next();
         },
         after: (handler, next) => {
-            log.info('LAMBDA RESPONSE', handler.response);
+            //TODO handler is undeefined for some reason, so ill move it to the endpoint builder 
+            //log.info('LAMBDA RESPONSE', handler.response);
+            log.info('LAMBDA EXECUTION FINISHED')
 
             if (rollback) {
                 rollback();
@@ -36,7 +38,7 @@ module.exports = (config) => {
         onError: (handler, next) => {
             let awsRequestId = handler.context.awsRequestId;
             let invocationEvent = JSON.stringify(handler.event);
-            log.error('invocation failed', { awsRequestId, invocationEvent }, handler.error);
+            log.error('INVOCATION FAILED', { awsRequestId, invocationEvent }, handler.error);
 
             next(handler.error);
         }

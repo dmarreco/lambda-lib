@@ -1,6 +1,7 @@
 const HandledException = require('./handled-exception');
 const middy = require('middy');
 const { captureCorrelationIds, sampleLogging } = require('./middleware');
+const log = require('./log');
 
 const HTTP_CODE_SUCCESS = 200;
 
@@ -130,6 +131,8 @@ function _handleSuccess(responseBody, callback) {
         response.body = responseBody;
         response.headers['content-type'] = 'text/plain';
     }
+
+    log.info('LAMBDA RESPONSE', response);
 
     callback(null, response);
 }
