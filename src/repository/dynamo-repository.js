@@ -46,7 +46,7 @@ class DynamoRepository {
             return Promise.reject(new Exceptions.ParameterMissingException());
         }
 
-        let key = (uuid === 'object') ? uuid : { uuid };
+        let key = (typeof uuid === 'object') ? uuid : { uuid };
 
         var params = {
             TableName: this._tableName,
