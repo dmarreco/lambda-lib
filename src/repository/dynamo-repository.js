@@ -39,15 +39,18 @@ class DynamoRepository {
 
     /**
      * Retrieve a record by its primary unique identifier (uuid)
-     * @param {*Order's unique universal identifier} uuid 
+     * @param {*Order's unique universal identifier} uuid If the partition key is the default name (uuid), just provide value. Else, provide an object {keyName: keyValue}
      */
     async get(uuid) {
         if (!uuid) {
             return Promise.reject(new Exceptions.ParameterMissingException());
         }
+
+        let key = (uuid === 'object') ? uuid : { uuid };
+
         var params = {
             TableName: this._tableName,
-            Key: { uuid }
+            Key: key
         };
         log.debug('Database get request', params);
         let response = await dynamoDb.get(params).promise();
