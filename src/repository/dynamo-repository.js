@@ -23,6 +23,28 @@ class DynamoRepository {
     /**
      * Retrieve all records
      */
+    // FIXME esta implementação está quebrada. O Dynamo pagina retornos muito grandes (veja exemplo abaixo):
+    /*
+        module.exports.scanTable = async (table) => {
+        log.info('Scanning table', {table});
+
+        let result = []; //TODO estamos colocando todo resultado no array; isso eventualmente pode estourar memória. ideal seria retornar um iterador (yield), stream, ou paginado.
+        let offset;
+        do {
+            let params = { TableName: table };
+            if (offset) {
+                log.debug('Last scan returned a partial result; resuming from offset', {uuid: offset});
+                params.ExclusiveStartKey = offset;
+            }
+            let res = await dynamoDb.scan(params).promise();
+            result = result.concat(res.Items);
+            offset = res.LastEvaluatedKey;
+        } while (offset)
+
+        log.info('Scanning complete', {table, count: result.length});
+        return result;
+        };
+    */
     async getAll() {
         var params = {
             TableName: this._tableName
@@ -67,6 +89,7 @@ class DynamoRepository {
      * @param {*} fieldName The name of the key field
      * @param {*} key The value we are looking for in the key field
      */
+    // FIXME esta implementação está quebrada. O Dynamo pagina retornos muito grandes (veja o comentário em this.getAll())    
     async query(key, fieldName, indexName) {
         if (key == null || fieldName == null) {
             throw new Exceptions.ParameterMissingException('A required parameter is missing for dynamo repository querying');
