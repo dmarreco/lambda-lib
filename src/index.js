@@ -5,7 +5,7 @@ const LambdaEndpoint = require('./lambda-endpoint-builder');
 const HandledException = require('./handled-exception');
 const DynamoRepository = require('./repository/dynamo-repository');
 const resolveSsmParameter = require('./resolve-ssm-parameter');
-const eventBus = require('./event-bus');
+const EventBus = require('./event-bus');
 
 module.exports = Object.assign({
     log,
@@ -15,5 +15,5 @@ module.exports = Object.assign({
     HandledException,
     DynamoRepository,
     resolveSsmParameter,
-    eventBus
+    EventBus
 }, Client);
