@@ -1,6 +1,14 @@
-const { snsClient } = require('./client/sns-client').Client;
+const snsClient = require('./client/sns-client');
 
-exports.emit = async (eventName, eventContents) => {
-    let topicName = `${process.env.SNS_TOPIC_ARN_PREFIX}__event__${eventName}`;
-    return snsClient.publish(topicName, eventContents);
-};
+class EventBus {
+    constructor(snsTopicArnPrefix) {
+        this._snsTopicArnPrefix = snsTopicArnPrefix;
+    }
+
+    async emit(eventName, eventContents) {
+        let topicName = `${this._snsTopicArnPrefix}__event__${eventName}`;
+        return snsClient.publish(topicName, eventContents);
+    }
+}
+
+module.exports = EventBus;
