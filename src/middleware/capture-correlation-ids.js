@@ -133,8 +133,31 @@ function captureSns(records, awsRequestId, sampleDebugLogRate) {
     correlationIds.replaceAllWith(context);
 }
 
+function captureDynamoStream(awsRequestId, sampleDebugLogRate) {
+    let context = { awsRequestId };
+ 
+    //correlation id is not propagated from upstream dynamo event, but they can be propagated downstream
+    context['x-correlation-id'] = awsRequestId;
+
+    context['Debug-Log-Enabled'] = Math.random() < sampleDebugLogRate ? 'true' : 'false';
+
+    correlationIds.replaceAllWith(context);
+}
+
 function isApiGatewayEvent(event) {
     return event.hasOwnProperty('httpMethod');
+}
+
+function isDynamoStreamEvent(event) {
+    if (!event.hasOwnProperty('Records')) {
+        return false;
+    }
+  
+    if (!Array.isArray(event.Records)) {
+        return false;
+    }
+
+    return event.Records[0].eventSource === 'aws:dynamodb';
 }
 
 function isKinesisEvent(event) {
@@ -174,6 +197,8 @@ module.exports = (config) => {
                 captureKinesis(handler.event, handler.context, sampleDebugLogRate);
             } else if (isSnsEvent(handler.event)) {
                 captureSns(handler.event.Records, handler.context.awsRequestId, sampleDebugLogRate);
+            } else if (isDynamoStreamEvent(handler.event)) {
+                captureDynamoStream(handler.context.awsRequestId, sampleDebugLogRate);
             } else {
                 log.warn('Unknown event type; can not capture correlation id', handler.event);
             }
