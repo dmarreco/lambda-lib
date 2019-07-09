@@ -44,7 +44,7 @@ function appendError(params, err) {
         return params;
     }
 
-    let stackAsArray = err && err.stack && err.stack.split(/\r?\n/)
+    let stackAsArray = err && err.stack && err.stack.split(/\r?\n/);
 
     return Object.assign(
         {},
