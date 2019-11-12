@@ -1,18 +1,23 @@
 const correlationIds = require('../correlation-ids');
-
-var sns;
-
 const log = require('../log');
 
-function getAwsSnsLib() {
-    if (!sns) {
+var sns, _region;
+const DEFAULT_REGION = 'us-west-2';
+
+function getAwsSnsLib(region = DEFAULT_REGION) {
+    if ( !sns || (region != _region) ) {
+        _region = region;
         if (process.env.DISABLE_XRAY == 'true') {
             const AWS = require('aws-sdk');
-            sns = new AWS.SNS();
+            sns = new AWS.SNS({
+                region
+            });
         } else {
             const XRay = require('aws-xray-sdk');
             const AWS = XRay.captureAWS(require('aws-sdk'));
-            sns = new AWS.SNS();
+            sns = new AWS.SNS({
+                region
+            });
         }
     }
     return sns;
@@ -30,6 +35,11 @@ function _addCorrelationIds(messageAttributes) {
     return Object.assign(attributes, messageAttributes || {});
 }
 
+function _getRegionFromArn(arn) {
+    const arnParts = arn.split(':');
+    return arnParts[3];
+}
+
 
 
 module.exports.publish = (arn, content, _attributes) => {
@@ -40,7 +50,8 @@ module.exports.publish = (arn, content, _attributes) => {
     };
 
     log.info('Publishing to SNS topic', params);
-    return getAwsSnsLib().publish(params).promise();
+    const region = _getRegionFromArn(arn);
+    return getAwsSnsLib(region).publish(params).promise();
 };
 
 
