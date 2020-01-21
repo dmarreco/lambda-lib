@@ -1,4 +1,4 @@
-# benie-lambda-lib
+# lambda-lib
 This library is a toolbox for creating AWS Lambda handlers that provides tooling and automation for:
 
 - structured logging and serialization of both _incoming events_ and _responses_;
