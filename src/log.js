@@ -49,7 +49,7 @@ function appendError(params, err) {
     return Object.assign(
         {},
         params || {}, 
-        { errorName: err.name, errorMessage: err.message, stackTrace: stackAsArray }
+        { errorName: err.name, errorMessage: err.message, stackTrace: stackAsArray, errorAsString: err.toString() }
     );
 }
 
