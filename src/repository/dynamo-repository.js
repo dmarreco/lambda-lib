@@ -4,7 +4,6 @@ const uuid = require('uuid/v4');
 const Exceptions = require('./repository-exceptions');
 const log = require('../log');
 const AWS = (process.env.DISABLE_XRAY == 'true') ? _AWS : AWSXRay.captureAWS(_AWS);
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 /**
  * A generic dynamo db repository with basic CRUD operations
@@ -15,9 +14,10 @@ class DynamoRepository {
      * Constructor
      * @param {*} tableName The name of the underlying dynamo table for this instance
      */
-    constructor(tableName) {
+    constructor(tableName, dynamoDbDocumentClient = new AWS.DynamoDB.DocumentClient()) {
         if (!tableName) throw new Error('Missing table name to create repository.');
         this._tableName = tableName;
+        this._dynamoDbDocClient = dynamoDbDocumentClient;
     }
 
     /**
@@ -51,7 +51,7 @@ class DynamoRepository {
         };
 
         log.debug('Database scan request', params);
-        let response = await dynamoDb.scan(params).promise();
+        let response = await this._dynamoDbDocClient.scan(params).promise();
         log.debug('Database scan response', response);
         if (response.Items) {
             return response.Items;
@@ -75,7 +75,7 @@ class DynamoRepository {
             Key: key
         };
         log.debug('Database get request', params);
-        let response = await dynamoDb.get(params).promise();
+        let response = await this._dynamoDbDocClient.get(params).promise();
         log.debug('Database get response', response);
         if (response.Item) {
             return response.Item;
@@ -107,7 +107,7 @@ class DynamoRepository {
         if(!indexName) delete params.IndexName;
 
         log.debug('Database query request', params);
-        let response = await dynamoDb.query(params).promise();
+        let response = await this._dynamoDbDocClient.query(params).promise();
         log.debug('Database query response', response);
         return response.Items;
     }
@@ -140,7 +140,7 @@ class DynamoRepository {
 
         try {
             log.debug('Database put request (update)', params);
-            let result = await dynamoDb.put(params).promise();
+            let result = await this._dynamoDbDocClient.put(params).promise();
             log.debug('Database put response (update)', result);
         } catch (error) {
             if (('' + error) === 'ConditionalCheckFailedException: The conditional request failed') {
@@ -174,7 +174,7 @@ class DynamoRepository {
         };
 
         log.debug('Database put request (create)', params);
-        let result = await dynamoDb.put(params).promise();
+        let result = await this._dynamoDbDocClient.put(params).promise();
         log.debug('Database put response (create)', result);
 
         return entity;
@@ -211,7 +211,7 @@ class DynamoRepository {
         }
 
         log.debug('Database delete request', params);
-        let result = await dynamoDb.delete(params).promise();
+        let result = await this._dynamoDbDocClient.delete(params).promise();
         log.debug('Database delete response', result);
     }
 }
