@@ -141,6 +141,7 @@ function  _createOptions(method, url, body, _headers, signAws) {
         hostname: url.hostname,
         path: url.path,
         port: url.port,
+		region: process.env.AWS_REGION,
         method,
         body,
         headers
