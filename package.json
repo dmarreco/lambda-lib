@@ -22,7 +22,7 @@
     "util"
   ],
   "author": "Daniel Marreco",
-  "license": "AAL",
+  "license": "ISC",
   "dependencies": {
     "aws-xray-sdk": "^2.5.0",
     "aws4": "^1.9.1",

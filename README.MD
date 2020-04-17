@@ -13,13 +13,8 @@ This library is a toolbox for creating AWS Lambda handlers that provides tooling
 ### Lambda Handler Builder
 Supose you have a business logic module (_myServiceModule_ in the example below) and must give an http endpoint to it, like so:
 
-```mermaid
-sequenceDiagram
-APIGateway ->> LambdaHandler: aLambdaHandler(event, context, callback)
-LambdaHandler ->> InnerBusinessService: someBusinessHandler(... bizParams)
-InnerBusinessService -->> LambdaHandler: 
-LambdaHandler -->> APIGateway : callback(err, res)
-```
+![Sequence Diagram](https://github.com/dmarreco/lambda-lib/blob/master/docs/diagram.svg)
+
 In such case, you might use LambdaEndpoint:
 
 ```javascript
@@ -88,14 +83,7 @@ TODO
 ### Provided Clients: cascading function calls
 Now let's assume your lambda or business logic may need to access some other lambda. Using the provided clients ensures these calls will be logged in a standard and structured manner, and that will propagate logging settings and correlation id's.
 
-```mermaid
-sequenceDiagram
-SomeLambda ->> SomeBusinessService: someBusinessHandler(... bizParams)
-SomeBusinessService ->> SomeInnerLambda: HTTP/SNS/Kinesis event
-
-SomeBusinessService -->> SomeLambda: 
-
-```
+![Sequence Diagram - Cascade](https://github.com/dmarreco/lambda-lib/blob/master/docs/diagram_cascading_calls.svg)
 
 - HTTP
 ```javascript
@@ -120,15 +108,21 @@ try {
 //TODO
 ```
 
-#### Log
+### Log
 You must set the log level in lambda's environment variable __process.env.LOG_LEVEL__, and it must be either _DEBUG, INFO, WARN or ERROR_. The default value is _DEBUG_.
 
 Using the __service builder__ and __client libraries__, it will be automatically logged:
 
--	Incoming Events
-- Outgoing HTTP, SNS and Kinesis events
-- Incoming HTTP responses
-- Outgoing service responses (callback)
+- ERROR
+    - Errors with attached invocation event)
+- INFO
+    - Incoming Events
+    - Outgoing service responses (callback)
+- DEBUG
+    - Outgoing HTTP, SNS and Kinesis events
+    - Incoming HTTP responses
+
+
 
 ```json
 //example log output for the cascading function calls scenario: 
@@ -138,7 +132,7 @@ Using the __service builder__ and __client libraries__, it will be automatically
 {"message":"LAMBDA RESPONSE","level":"INFO","awsRegion":"us-west-2","awsRequestId":"myAwsRequestId","x-correlation-id":"myAwsRequestId","Debug-Log-Enabled":"true","statusCode":200,"headers":{"Content-Type":"application/json","Access-Control-Allow-Credentials":true}}
 ```
 
-#### Correlation IDs
+### Correlation IDs
 If the remote lambda is build using this lambda-builder, they will log the same correlation ID in the incoming event, and you will be able to __track a long-living business event__ in the logs of every function involved.
 
 
