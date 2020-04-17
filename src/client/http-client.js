@@ -141,13 +141,14 @@ function  _createOptions(method, url, body, _headers, signAws) {
         hostname: url.hostname,
         path: url.path,
         port: url.port,
-		region: process.env.AWS_REGION,
         method,
         body,
         headers
     };
     log.debug('HTTP request', opts);
     if (signAws) {
+        opts.region = process.env.AWS_REGION;
+        opts.service = 'execute-api';
         aws4.sign(opts);
         log.debug('(HTTP request is IAM-signed)');
     }

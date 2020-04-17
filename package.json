@@ -1,13 +1,13 @@
 {
   "name": "@benie/lambda-lib",
-  "version": "1.1.13",
+  "version": "1.1.15",
   "description": "Builders and tools for creating AWS Lambda function handlers that provides automation for things such as logging, instrumentation and parameters propagation",
   "main": "src/index.js",
   "scripts": {
     "version:major": "npm version major",
     "version:minor": "npm version minor",
     "version:patch": "npm version patch",
-    "publish": "npm publish --access public",
+    "publish:pub": "npm publish --access public",
     "test": "test"
   },
   "repository": {
@@ -24,17 +24,17 @@
   "author": "Daniel Marreco",
   "license": "AAL",
   "dependencies": {
-    "aws-xray-sdk": "^2.3.3",
-    "aws4": "^1.8.0",
+    "aws-xray-sdk": "^2.5.0",
+    "aws4": "^1.9.1",
     "axios": "^0.18.1",
     "middy": "^0.19.1",
     "url": "^0.11.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "aws-sdk": "^2.454.0",
+    "aws-sdk": "^2.651.0",
     "chai": "^4.2.0",
-    "lambda-tester": "^3.5.0",
+    "lambda-tester": "^3.6.0",
     "mocha": "^5.2.0",
     "nock": "^10.0.1"
   }
