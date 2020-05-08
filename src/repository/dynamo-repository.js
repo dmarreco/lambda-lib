@@ -91,10 +91,6 @@ class DynamoRepository {
      */
     // FIXME esta implementação está quebrada. O Dynamo pagina retornos muito grandes (veja o comentário em this.getAll())    
     async query(key, fieldName, indexName) {
-        if (key == null || fieldName == null) {
-            throw new Exceptions.ParameterMissingException('A required parameter is missing for dynamo repository querying');
-        }
-
         var params = {
             TableName: this._tableName,
             IndexName: indexName,
