@@ -1,5 +1,5 @@
 const HandledException = require('./handled-exception');
-const middy = require('middy');
+const middy = require('@middy/core');
 const { captureCorrelationIds, sampleLogging } = require('./middleware');
 const log = require('./log');
 
