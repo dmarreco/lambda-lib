@@ -3,6 +3,7 @@ const middy = require('@middy/core');
 const { captureCorrelationIds, sampleLogging } = require('./middleware');
 const log = require('./log');
 
+const SAMPLE_DEBUG_LOG = 0.05;
 const HTTP_CODE_SUCCESS = 200;
 
 const LambdaEndpointWrapper = (f) => {
@@ -84,8 +85,8 @@ class LambdaEndpoint {
         };
 
         return middy(res)
-            .use(captureCorrelationIds({ sampleDebugLogRate: 0.01 }))
-            .use(sampleLogging({ sampleRate: 0.01 }));
+            .use(captureCorrelationIds({ sampleDebugLogRate: SAMPLE_DEBUG_LOG }))
+            .use(sampleLogging({ sampleRate: SAMPLE_DEBUG_LOG }));
     }
 }
 
