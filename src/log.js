@@ -9,6 +9,8 @@ const LogLevels = {
     ERROR : 3
 };
 
+const DEFAULT_LOG_LEVEL = 'DEBUG';
+
 // most of these are available through the Node.js execution environment for Lambda
 // see https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html
 const DEFAULT_CONTEXT = {
@@ -30,9 +32,8 @@ function getContext () {
     return DEFAULT_CONTEXT;
 }
 
-// default to debug if not specified
 function logLevelName() {
-    return process.env.LOG_LEVEL || 'DEBUG';
+    return process.env.LOG_LEVEL || DEFAULT_LOG_LEVEL;
 }
 
 function isEnabled (level) {

@@ -1,7 +1,7 @@
 const HandledException = require('./handled-exception');
 const middy = require('@middy/core');
+const httpJsonBodyParser = require('@middy/http-json-body-parser')
 const { captureCorrelationIds, sampleLogging } = require('./middleware');
-const log = require('./log');
 
 const SAMPLE_DEBUG_LOG = 0.05;
 const HTTP_CODE_SUCCESS = 200;
@@ -11,6 +11,7 @@ const LambdaEndpointWrapper = (f) => {
         .withHandler(f)
         .build();
 };
+
 
 /**
  * Handler for HTTP lambda endpoints.
@@ -56,10 +57,10 @@ class LambdaEndpoint {
 
         let res = async (_event, context, callback) => {
             let event = Object.assign({}, _event);
-            if(event.body === undefined) event.body = '{}';
-            try { event.body = JSON.parse(event.body); } catch (e) { /*not json*/ }
-            event.pathParameters = event.pathParameters || {};
-            event.queryStringParameters = event.queryStringParameters || {};
+            
+            if (event.body == null) event.body = {};
+            if (event.pathParameters == null) event.pathParameters = {};
+            if (event.queryStringParameters == null) event.queryStringParameters = {};
 
             if (this.validateEvent) this.validateEvent(event);
 
@@ -85,6 +86,7 @@ class LambdaEndpoint {
         };
 
         return middy(res)
+            .use(httpJsonBodyParser())
             .use(captureCorrelationIds({ sampleDebugLogRate: SAMPLE_DEBUG_LOG }))
             .use(sampleLogging({ sampleRate: SAMPLE_DEBUG_LOG }));
     }
@@ -132,8 +134,6 @@ function _handleSuccess(responseBody, callback) {
         response.body = responseBody;
         response.headers['content-type'] = 'text/plain';
     }
-
-    log.info('LAMBDA RESPONSE', response);
 
     callback(null, response);
 }
