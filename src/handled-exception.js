@@ -1,3 +1,4 @@
+//TODO deprecar e substituir por https://github.com/middyjs/middy/tree/master/packages/http-error-handler
 class HandledException extends Error {
 
     constructor(customMessage, httpStatusCode, errorCode, defaultMessage) {

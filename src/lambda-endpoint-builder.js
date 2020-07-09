@@ -6,6 +6,7 @@ const { captureCorrelationIds, sampleLogging } = require('./middleware');
 const SAMPLE_DEBUG_LOG = 0.05;
 const HTTP_CODE_SUCCESS = 200;
 
+//TODO o wrapper pode ser implementado como um middleware middy
 const LambdaEndpointWrapper = (f) => {
     return new LambdaEndpoint()
         .withHandler(f)
@@ -25,6 +26,7 @@ const LambdaEndpointWrapper = (f) => {
  *      // .withEventParams(e => [e.body.some, e.queryStringParams.someOther]) 
  *      .build();
  */
+//TODO deprecar essa Builder Class e usar somente o wrapper
 class LambdaEndpoint {
 
     withHandler(handler) {
@@ -109,9 +111,11 @@ function _handleError(exception, callback) {
             body: exception.message,
         };
         response.headers = { 'Content-Type': 'text/plain' };
+        //TODO de acordo com a nova spec do lambda, não é mais necessário chamar callback, podendo somente retornar o resultado.
         callback(null, response);
     }
     else {
+        //TODO de acordo com a nova spec do lambda, não é mais necessário chamar callback, podendo somente lançar a exception.
         callback(exception);
     }
 }
@@ -135,6 +139,7 @@ function _handleSuccess(responseBody, callback) {
         response.headers['content-type'] = 'text/plain';
     }
 
+    //TODO de acordo com a nova spec do lambda, não é mais necessário chamar callback, podendo somente retornar o resultado.
     callback(null, response);
 }
 
