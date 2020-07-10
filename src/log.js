@@ -69,9 +69,9 @@ function log (levelName, message, params, printFunc = console.log) {
     printFunc(JSON.stringify(logMsg));
 }
 
-module.exports.debug = (msg, params) => log('DEBUG', msg, params); //TODO usar o console.debug para já classificar o erro no cloudwatch
-module.exports.info  = (msg, params) => log('INFO',  msg, params); //TODO usar o console.info
-module.exports.warn  = (msg, params, error) => log('WARN',  msg, appendError(params, error)); //TODO usar o console.warn para já classificar o erro no cloudwatch
+module.exports.debug = (msg, params) => log('DEBUG', msg, params, console.debug);
+module.exports.info  = (msg, params) => log('INFO',  msg, params, console.info);
+module.exports.warn  = (msg, params, error) => log('WARN',  msg, appendError(params, error), console.warn);
 module.exports.error = (msg, params, error) => log('ERROR', msg, appendError(params, error), console.error);
 
 module.exports.enableDebug = () => {

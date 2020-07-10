@@ -16,7 +16,8 @@ module.exports = (config) => {
 
     return {
         before: (handler, next) => {
-            log.info('LAMBDA EVENT RECEIVED', handler.event);
+            log.info('LAMBDA START');
+            log.debug('LAMBDA EVENT RECEIVED', handler.event);
 
             if (isDebugEnabled()) {
                 rollback = log.enableDebug();
@@ -25,7 +26,8 @@ module.exports = (config) => {
             next();
         },
         after: (handler, next) => {
-            log.info('LAMBDA RESPONSE', handler.response);
+            log.debug('LAMBDA RESPONSE', handler.response);
+            log.info('LAMBDA FINISH');
 
             if (rollback) {
                 rollback();
