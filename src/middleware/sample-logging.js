@@ -16,7 +16,8 @@ module.exports = (config) => {
 
     return {
         before: (handler, next) => {
-            log.info('LAMBDA EVENT RECEIVED', handler.event);
+            log.info('LAMBDA START');
+            log.debug('LAMBDA EVENT RECEIVED', handler.event);
 
             if (isDebugEnabled()) {
                 rollback = log.enableDebug();
@@ -25,9 +26,8 @@ module.exports = (config) => {
             next();
         },
         after: (handler, next) => {
-            //TODO handler is undeefined for some reason, so ill move it to the endpoint builder 
-            //log.info('LAMBDA RESPONSE', handler.response);
-            log.info('LAMBDA EXECUTION FINISHED');
+            log.debug('LAMBDA RESPONSE', handler.response);
+            log.info('LAMBDA FINISH');
 
             if (rollback) {
                 rollback();
@@ -38,7 +38,7 @@ module.exports = (config) => {
         onError: (handler, next) => {
             let awsRequestId = handler.context.awsRequestId;
             let invocationEvent = JSON.stringify(handler.event);
-            log.error('INVOCATION FAILED', { awsRequestId, invocationEvent }, handler.error);
+            log.error('LAMBDA INVOCATION FAILED', { awsRequestId, invocationEvent }, handler.error);
 
             next(handler.error);
         }
