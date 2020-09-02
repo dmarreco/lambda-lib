@@ -1,26 +1,11 @@
 const correlationIds = require('../correlation-ids');
 const log = require('../log');
+const AWS = require('aws-sdk');
 
-var sns, _region;
 const DEFAULT_REGION = 'us-west-2';
 
 function getAwsSnsLib(region = DEFAULT_REGION) {
-    if ( !sns || (region != _region) ) {
-        _region = region;
-        if (process.env.DISABLE_XRAY == 'true') {
-            const AWS = require('aws-sdk');
-            sns = new AWS.SNS({
-                region
-            });
-        } else {
-            const XRay = require('aws-xray-sdk');
-            const AWS = XRay.captureAWS(require('aws-sdk'));
-            sns = new AWS.SNS({
-                region
-            });
-        }
-    }
-    return sns;
+    return new AWS.SNS({ region });
 }
 
 function _addCorrelationIds(messageAttributes) {
@@ -41,7 +26,6 @@ function _getRegionFromArn(arn) {
 }
 
 
-
 module.exports.publish = (arn, content, _attributes) => {
     const params = {
         Message: JSON.stringify(content),
@@ -53,8 +37,6 @@ module.exports.publish = (arn, content, _attributes) => {
     const region = _getRegionFromArn(arn);
     return getAwsSnsLib(region).publish(params).promise();
 };
-
-
 
 module.exports.send = (phone, content, _attributes) => {
     const params = {

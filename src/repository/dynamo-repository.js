@@ -1,9 +1,7 @@
-const AWSXRay = require('aws-xray-sdk');
-const _AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 const uuid = require('uuid/v4');
 const Exceptions = require('./repository-exceptions');
 const log = require('../log');
-const AWS = (process.env.DISABLE_XRAY == 'true') ? _AWS : AWSXRay.captureAWS(_AWS);
 
 /**
  * A generic dynamo db repository with basic CRUD operations

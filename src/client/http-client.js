@@ -1,10 +1,12 @@
-//Enable outgoing http call instrumentation via AWS XRAY. see http://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-nodejs-httpclients.html .
 const aws4 = require('aws4');
-const url = require('url');
+const Url = require('url');
 const correlationIds = require('../correlation-ids');
 const log = require('../log');
 const {ClientException, ServerException} = require('./remote-exceptions');
-let _libsXRay, _libs;
+const _libs = {
+    'http:' : require('http'),
+    'https:': require('https')
+};
 
 /**
  * Makes an HTTP request to a remote API
@@ -53,9 +55,9 @@ async function _request (verb, url, body, headers, signAws) {
     if (response.statusCode >= 400) {
         let errorCode, message;
         try {
-            let body = JSON.parse(response.body);
-            errorCode = body.errorCode; //errorCode may be passed, on top of http status code for typed error contract
-            message = body.message;
+            const _body = JSON.parse(response.body);
+            errorCode = _body.errorCode; //errorCode may be passed, on top of http status code for typed error contract
+            message = _body.message;
         }
         catch(err) { //not JSON
             message = response.body;
@@ -85,7 +87,7 @@ async function _makeRequest(method, urlString, body, headers, signAws) {
             * URL object from our request string, so we can build
             * our request for http.get */
         let urlStringWithoutDuplicateSlashesFromPath = urlString.replace(/([^:]\/)\/+/g, '$1');
-        const parsedUrl = url.parse(encodeURI(urlStringWithoutDuplicateSlashesFromPath));
+        const parsedUrl = Url.parse(encodeURI(urlStringWithoutDuplicateSlashesFromPath));
 
         const requestOptions = _createOptions(method, parsedUrl, body, headers, signAws);
         
@@ -110,27 +112,10 @@ async function _makeRequest(method, urlString, body, headers, signAws) {
 
 function _getProperLibraryForProtocol(protocol) {
     const DEFAULT_PROTOCOL = 'https:';
-    let libs;
-    if( !(process.env.DISABLE_XRAY == 'true') ) {
-        const AWSXRay = require('aws-xray-sdk');
-        if(!_libsXRay) { //lazy load
-            _libsXRay = {
-                'http:' : AWSXRay.captureHTTPs(require('http')),
-                'https:': AWSXRay.captureHTTPs(require('https'))
-            };
-        }
-        libs = _libsXRay;
-    } else {
-        if(!_libs) {
-            _libs = { // lazy load
-                'http:' : require('http'),
-                'https:': require('https')
-            };
-        }
-        libs = _libs;
+    const res = _libs[protocol || DEFAULT_PROTOCOL];
+    if(!res) {
+        throw new Error(`Could not find handler library for protocol '${protocol}'; must be either 'http:' 'https:'`);
     }
-    let res = libs[protocol || DEFAULT_PROTOCOL];
-    if(!res) throw new Error(`Could not find handler library for protocol '${protocol}'; must be either 'http:' 'https:'`);
     return res;
 }
 

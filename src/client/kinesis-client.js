@@ -1,4 +1,3 @@
-//const AWSXRay        = require('aws-xray-sdk');
 const AWS            = require('aws-sdk');
 const Kinesis        = new AWS.Kinesis();
 const log            = require('../log');
