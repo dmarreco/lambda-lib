@@ -1,6 +1,6 @@
 const HandledException = require('./handled-exception');
 const middy = require('@middy/core');
-const httpJsonBodyParser = require('@middy/http-json-body-parser')
+const httpJsonBodyParser = require('@middy/http-json-body-parser');
 const { captureCorrelationIds, sampleLogging } = require('./middleware');
 
 const SAMPLE_DEBUG_LOG = 0.05;
