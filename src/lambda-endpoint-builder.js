@@ -1,15 +1,18 @@
 const HandledException = require('./handled-exception');
-const middy = require('middy');
+const middy = require('@middy/core');
+const httpJsonBodyParser = require('@middy/http-json-body-parser');
 const { captureCorrelationIds, sampleLogging } = require('./middleware');
-const log = require('./log');
 
+const SAMPLE_DEBUG_LOG = 0.05;
 const HTTP_CODE_SUCCESS = 200;
 
+//TODO o wrapper pode ser implementado como um middleware middy
 const LambdaEndpointWrapper = (f) => {
     return new LambdaEndpoint()
         .withHandler(f)
         .build();
 };
+
 
 /**
  * Handler for HTTP lambda endpoints.
@@ -23,6 +26,7 @@ const LambdaEndpointWrapper = (f) => {
  *      // .withEventParams(e => [e.body.some, e.queryStringParams.someOther]) 
  *      .build();
  */
+//TODO deprecar essa Builder Class e usar somente o wrapper
 class LambdaEndpoint {
 
     withHandler(handler) {
@@ -55,10 +59,10 @@ class LambdaEndpoint {
 
         let res = async (_event, context, callback) => {
             let event = Object.assign({}, _event);
-            if(event.body === undefined) event.body = '{}';
-            try { event.body = JSON.parse(event.body); } catch (e) { /*not json*/ }
-            event.pathParameters = event.pathParameters || {};
-            event.queryStringParameters = event.queryStringParameters || {};
+            
+            if (event.body == null) event.body = {};
+            if (event.pathParameters == null) event.pathParameters = {};
+            if (event.queryStringParameters == null) event.queryStringParameters = {};
 
             if (this.validateEvent) this.validateEvent(event);
 
@@ -84,8 +88,9 @@ class LambdaEndpoint {
         };
 
         return middy(res)
-            .use(captureCorrelationIds({ sampleDebugLogRate: 0.01 }))
-            .use(sampleLogging({ sampleRate: 0.01 }));
+            .use(httpJsonBodyParser())
+            .use(captureCorrelationIds({ sampleDebugLogRate: SAMPLE_DEBUG_LOG }))
+            .use(sampleLogging({ sampleRate: SAMPLE_DEBUG_LOG }));
     }
 }
 
@@ -106,9 +111,11 @@ function _handleError(exception, callback) {
             body: exception.message,
         };
         response.headers = { 'Content-Type': 'text/plain' };
+        //TODO de acordo com a nova spec do lambda, não é mais necessário chamar callback, podendo somente retornar o resultado.
         callback(null, response);
     }
     else {
+        //TODO de acordo com a nova spec do lambda, não é mais necessário chamar callback, podendo somente lançar a exception.
         callback(exception);
     }
 }
@@ -132,8 +139,7 @@ function _handleSuccess(responseBody, callback) {
         response.headers['content-type'] = 'text/plain';
     }
 
-    log.info('LAMBDA RESPONSE', response);
-
+    //TODO de acordo com a nova spec do lambda, não é mais necessário chamar callback, podendo somente retornar o resultado.
     callback(null, response);
 }
 

@@ -12,7 +12,6 @@ describe('HTTP Client', () => {
 
     before(() => {
         process.env.LOG_LEVEL = 'ERROR';
-        process.env.DISABLE_XRAY = true;
     });
 
     it('Making HTTPS GET with result 200 returns the parsed body as object if content-type=application/json' , async () => {

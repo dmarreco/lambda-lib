@@ -7,7 +7,6 @@ const snsClient = require('../src/client/sns-client');
 describe ('SNS Client', () => {
     before(() => {
         process.env.LOG_LEVEL = 'ERROR';
-        process.env.DISABLE_XRAY = true;
     });
 
     describe.skip('Send SMS message', () => {
