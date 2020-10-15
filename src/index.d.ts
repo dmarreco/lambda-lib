@@ -63,7 +63,7 @@ export class DynamoRepository {
   query: (
     key: string | number,
     fieldName: string,
-    indexName: string
+    indexName?: string
   ) => Promise<Array<object>>;
   update: (entity: object) => Promise<object>;
   create: (entity: object) => Promise<object>;
