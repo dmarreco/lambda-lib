@@ -6,6 +6,7 @@ const HandledException = require('./handled-exception');
 const DynamoRepository = require('./repository/dynamo-repository');
 const resolveSsmParameter = require('./resolve-ssm-parameter');
 const EventBus = require('./event-bus');
+const Middleware = require('./middleware');
 
 module.exports = Object.assign({
     log,
@@ -15,5 +16,6 @@ module.exports = Object.assign({
     HandledException,
     DynamoRepository,
     resolveSsmParameter,
-    EventBus
+    EventBus,
+    Middleware
 }, Client);

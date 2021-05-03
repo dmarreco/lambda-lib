@@ -24,6 +24,11 @@ export class LambdaEndpoint {
   static Wrap: (lambda: any) => any;
 }
 
+export class Middleware {
+  static captureCorrelationIds: (config: any) => any;
+  static sampleLogging: (config: any) => any;
+}
+
 export class httpClient {
   static request: <T>(
     verb: string,
