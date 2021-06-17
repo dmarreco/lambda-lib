@@ -87,5 +87,7 @@ export function resolveSsmParameter(
 ): Promise<string>;
 
 export class EventBus {
-  static emit(eventName: string, eventContents: any): Promise<any>;
+  constructor(snsTopicArnPrefix: string)
+
+  emit(eventName: string, eventContents: any): Promise<any>;
 }
