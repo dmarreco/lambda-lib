@@ -24,20 +24,25 @@ export class LambdaEndpoint {
   static Wrap: (lambda: any) => any;
 }
 
+export class Middleware {
+  static captureCorrelationIds: (config: any) => any;
+  static sampleLogging: (config: any) => any;
+}
+
 export class httpClient {
-  static request: (
+  static request: <T>(
     verb: string,
     url: string,
     body: object | string,
     headers: object,
     signAws?: boolean
-  ) => Promise<object>;
-  static awsRequest: (
+  ) => Promise<T>;
+  static awsRequest: <T>(
     verb: string,
     url: string,
     body: object,
     headers: object
-  ) => Promise<object>;
+  ) => Promise<T>;
 }
 
 export class snsClient {
@@ -76,8 +81,13 @@ export class DynamoRepository {
   ) => Promise<object>;
 }
 
-export function resolveSsmParameter(): Promise<string>;
+export function resolveSsmParameter(
+  parameter: string,
+  decryption?: boolean
+): Promise<string>;
 
 export class EventBus {
-  static emit(eventName: string, eventContents: any): Promise<any>;
+  constructor(snsTopicArnPrefix: string)
+
+  emit(eventName: string, eventContents: any): Promise<any>;
 }

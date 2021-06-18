@@ -1,0 +1,63 @@
+name: Release
+on:
+    push:
+        branches:
+            - master
+        tags-ignore:
+            - '*.*'
+
+jobs:
+    release:
+        name: Release
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+              with:
+                  token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+                  persist-credentials: false
+            - name: Use Node.js ${{ secrets.NODE_VERSION }}
+              uses: actions/setup-node@v2
+              with:
+                  node-version: ${{ secrets.NODE_VERSION }}
+            - uses: actions/cache@v2
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+            - name: Install
+              run: npm install --non-interactive
+            - run: npx semantic-release --ci --debug
+              env:
+                  GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            - name: Rebase and push to develop
+              uses: github-actions-x/commit@v2.8
+              with:
+                  push-branch: develop
+                  github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+                  rebase: 'true'
+                  name: semantic-release-bot
+                  email: semantic-release-bot@benie.com.br
+            - name: Success Notification
+              if: success()
+              uses: rtCamp/action-slack-notify@v2.0.0
+              env:
+                  SLACK_USERNAME: Benie Publish Bot
+                  SLACK_CHANNEL: deploy-bot
+                  SLACK_COLOR: '#2E7D32'
+                  SLACK_ICON: https://github.com/beniesaude.png?size=48
+                  SLACK_MESSAGE: ':rocket:'
+                  SLACK_TITLE: ${{ github.repository }} -> PROD | Publish SUCCESSFULLY!
+                  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+            - name: Failure Notification
+              if: failure()
+              uses: rtCamp/action-slack-notify@v2.0.0
+              env:
+                  SLACK_USERNAME: Benie Publish Bot
+                  SLACK_CHANNEL: deploy-bot
+                  SLACK_COLOR: '#FD5E53'
+                  SLACK_ICON: https://github.com/beniesaude.png?size=48
+                  SLACK_MESSAGE: ':sob:'
+                  SLACK_TITLE: ${{ github.repository }} -> PROD | Publish FAILED!
+                  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
