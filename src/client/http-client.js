@@ -35,10 +35,10 @@ exports.request = _request;
  * @throws {ClientException} If response status code is 4XX. The status code and message will be in the thrown exception.
  * @throws {ServerException} If response status code is 5XX. The status code and message will be in the thrown exception.
  */
-exports.awsRequest = async (verb, url, body, headers) => {return _request(verb, url, body, headers, true);};
+exports.awsRequest = async (verb, url, body, headers, region) => {return _request(verb, url, body, headers, true, region);};
 
 
-async function _request (verb, url, body, headers, signAws) {
+async function _request (verb, url, body, headers, signAws, region) {
     if (! (verb && url) ) {
         throw new Error ('"verb" and "url" must be informed');
     }
@@ -51,7 +51,7 @@ async function _request (verb, url, body, headers, signAws) {
     } else if (body) {
         bodyAsString = body.toString();
     }
-    let response = await _makeRequest(verb, url, (body ? bodyAsString : undefined), requestHeaders, signAws);
+    let response = await _makeRequest(verb, url, (body ? bodyAsString : undefined), requestHeaders, signAws, region);
     if (response.statusCode >= 400) {
         let errorCode, message;
         try {
@@ -79,7 +79,7 @@ async function _request (verb, url, body, headers, signAws) {
 }
 
 
-async function _makeRequest(method, urlString, body, headers, signAws) {
+async function _makeRequest(method, urlString, body, headers, signAws, region) {
     // create a new Promise
     return new Promise((resolve, reject) => {
 
@@ -89,7 +89,7 @@ async function _makeRequest(method, urlString, body, headers, signAws) {
         let urlStringWithoutDuplicateSlashesFromPath = urlString.replace(/([^:]\/)\/+/g, '$1');
         const parsedUrl = Url.parse(encodeURI(urlStringWithoutDuplicateSlashesFromPath));
 
-        const requestOptions = _createOptions(method, parsedUrl, body, headers, signAws);
+        const requestOptions = _createOptions(method, parsedUrl, body, headers, signAws, region);
         
         const lib = _getProperLibraryForProtocol(parsedUrl.protocol);
 
@@ -120,7 +120,7 @@ function _getProperLibraryForProtocol(protocol) {
 }
 
 // the options that are required by http.get
-function  _createOptions(method, url, body, _headers, signAws) {
+function  _createOptions(method, url, body, _headers, signAws, region = process.env.AWS_REGION) {
     let headers = Object.assign({}, correlationIds.get(), _headers);
     let opts =  {
         hostname: url.hostname,
@@ -132,7 +132,7 @@ function  _createOptions(method, url, body, _headers, signAws) {
     };
     log.debug('HTTP request', opts);
     if (signAws) {
-        opts.region = process.env.AWS_REGION;
+        opts.region = region;
         opts.service = 'execute-api';
         aws4.sign(opts);
         log.debug('(HTTP request is IAM-signed)');
