@@ -6,6 +6,11 @@ module.exports = (config) => {
     let rollback = undefined;
 
     const isDebugEnabled = () => {
+        
+        if (config.forceDisable) {
+            return false;
+        }
+        
         const context = correlationIds.get();
         if (context && context['Debug-Log-Enabled'] === 'true') {
             return true;
