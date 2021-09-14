@@ -16,12 +16,12 @@ module.exports = (config) => {
 
     return {
         before: (handler, next) => {
-            log.info('LAMBDA START');
-            log.debug('LAMBDA EVENT RECEIVED', handler.event);
-
             if (isDebugEnabled()) {
                 rollback = log.enableDebug();
             }
+
+            log.info('LAMBDA START');
+            log.debug('LAMBDA EVENT RECEIVED', handler.event);
 
             next();
         },
