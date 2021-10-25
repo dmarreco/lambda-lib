@@ -6,6 +6,11 @@ module.exports = (config) => {
     let rollback = undefined;
 
     const isDebugEnabled = () => {
+        
+        if (config.forceDisable) {
+            return false;
+        }
+        
         const context = correlationIds.get();
         if (context && context['Debug-Log-Enabled'] === 'true') {
             return true;
@@ -16,12 +21,12 @@ module.exports = (config) => {
 
     return {
         before: (handler, next) => {
-            log.info('LAMBDA START');
-            log.debug('LAMBDA EVENT RECEIVED', handler.event);
-
             if (isDebugEnabled()) {
                 rollback = log.enableDebug();
             }
+
+            log.info('LAMBDA START');
+            log.debug('LAMBDA EVENT RECEIVED', handler.event);
 
             next();
         },

@@ -3,7 +3,7 @@ const middy = require('@middy/core');
 const httpJsonBodyParser = require('@middy/http-json-body-parser');
 const { captureCorrelationIds, sampleLogging } = require('./middleware');
 
-const SAMPLE_DEBUG_LOG = 0.05;
+const DEFAULT_SAMPLE_DEBUG_LOG_RATE = 0.05;
 const HTTP_CODE_SUCCESS = 200;
 
 //TODO o wrapper pode ser implementado como um middleware middy
@@ -87,10 +87,12 @@ class LambdaEndpoint {
             }
         };
 
+        const disableSampleLogging = (process.env.DISABLE_SAMPLE_DEBUG_LOG === 'true');
+
         return middy(res)
             .use(httpJsonBodyParser())
-            .use(captureCorrelationIds({ sampleDebugLogRate: SAMPLE_DEBUG_LOG }))
-            .use(sampleLogging({ sampleRate: SAMPLE_DEBUG_LOG }));
+            .use(captureCorrelationIds({ sampleDebugLogRate: DEFAULT_SAMPLE_DEBUG_LOG_RATE }))
+            .use(sampleLogging({ sampleRate: DEFAULT_SAMPLE_DEBUG_LOG_RATE, forceDisable: disableSampleLogging }));
     }
 }
 
