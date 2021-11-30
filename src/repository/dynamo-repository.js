@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk');
+const { DynamoDB } = require('aws-sdk');
 const uuid = require('uuid/v4');
 const Exceptions = require('./repository-exceptions');
 const log = require('../log');
@@ -12,7 +12,7 @@ class DynamoRepository {
      * Constructor
      * @param {*} tableName The name of the underlying dynamo table for this instance
      */
-    constructor(tableName, dynamoDbDocumentClient = new AWS.DynamoDB.DocumentClient()) {
+    constructor(tableName, dynamoDbDocumentClient = new DynamoDB.DocumentClient()) {
         if (!tableName) throw new Error('Missing table name to create repository.');
         this._tableName = tableName;
         this._dynamoDbDocClient = dynamoDbDocumentClient;
@@ -66,14 +66,13 @@ class DynamoRepository {
             return Promise.reject(new Exceptions.ParameterMissingException());
         }
 
-        let key = (typeof uuid === 'object') ? uuid : { uuid };
-
-        var params = {
+        const key = (typeof uuid === 'object') ? uuid : { uuid };
+        const params = {
             TableName: this._tableName,
             Key: key
         };
         log.debug('Database get request', params);
-        let response = await this._dynamoDbDocClient.get(params).promise();
+        const response = await this._dynamoDbDocClient.get(params).promise();
         log.debug('Database get response', response);
         if (response.Item) {
             return response.Item;
@@ -113,18 +112,19 @@ class DynamoRepository {
      * @throws {OptimisticLockException} if the current version is different from the provided entity.
      * @returns {*} The saved entity with the updated version
      */
-    async update(entity) {
+    async update(entity, key) {
         if (!(entity.uuid && entity.version)) {
             throw new Exceptions.UnidentifiedEntityException();
         }
 
-        var currentVersion = Number(entity.version);
-        var newVersion = Date.now();
+        const finalKey = key ? (typeof key === 'object') ? key : { uuid: key } : { uuid: entity.uuid };
+        const currentVersion = Number(entity.version);
+        const newVersion = Date.now();
         entity.version = newVersion;
-        var params = {
+        const params = {
             TableName: this._tableName,
             IndexName: 'uuid-index',
-            Key: { uuid: entity.uuid },
+            Key: finalKey,
             Item: entity,
             // the parameters below garantee optimistic lock violations will throw "ConditionalCheckFailedException: The conditional request failed" error
             ConditionExpression: '#version = :currentVersion',
@@ -189,7 +189,7 @@ class DynamoRepository {
             throw new Exceptions.NoEntityFoundException();
         }
         let newVersion = Object.assign(entity, props);
-        return this.update(newVersion);
+        return this.update(newVersion, uuid);
     }
 
     async delete(hashKeyName, hashKey, rangeKeyName,  rangeKey) {
