@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/beniesaude/lambda-lib/compare/v1.4.0...v1.5.0) (2021-11-30)
+
+
+### Features
+
+* **dynamo-repository:** Handle composite keys when update ([21cda37](https://github.com/beniesaude/lambda-lib/commit/21cda3771a7363d76694964491abee190e36748a))
+
 # [1.4.0](https://github.com/beniesaude/lambda-lib/compare/v1.3.0...v1.4.0) (2021-10-25)
 
 
