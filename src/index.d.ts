@@ -64,13 +64,13 @@ export class Client implements LambdaEndpoint, httpClient, snsClient {}
 export class DynamoRepository {
   constructor(tableName: string);
   getAll: () => Promise<Array<object>>;
-  get: (uuid: string) => Promise<object>;
+  get: (uuid: object | string) => Promise<object>;
   query: (
     key: string | number,
     fieldName: string,
     indexName?: string
   ) => Promise<Array<object>>;
-  update: (entity: object) => Promise<object>;
+  update: (entity: object, uuid: object | string) => Promise<object>;
   create: (entity: object) => Promise<object>;
   patch: (uuid: string, props: object) => Promise<object>;
   delete: (
