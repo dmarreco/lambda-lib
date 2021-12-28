@@ -1,10 +1,6 @@
-const HandledException = require('../handled-exception');
-
-class RepositoryException extends HandledException {
+class RepositoryException {
 
     constructor(customMessage, errorCode, defaultMessage, httpStatusCode) {
-        //super(customMessage, httpStatusCode, errorCode, defaultMessage)
-        super(customMessage, httpStatusCode, errorCode, defaultMessage);
         this.isJson = (errorCode ? true : false);
         this.httpStatusCode = httpStatusCode;
         this.name = this.constructor.name;
